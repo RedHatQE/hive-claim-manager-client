@@ -4,5 +4,3 @@ WORKDIR /hove-claim-system-client
 COPY . .
 RUN npm install
 CMD ["npm", "start"]
-
-
