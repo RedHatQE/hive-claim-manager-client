@@ -55,7 +55,7 @@ function Row(props) {
             onClick={() => {
               if (claim.name.includes(user.name)) {
                 httpClient.post(
-                  process.env.REACT_APP_API_URL +
+                  process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL +
                     "/delete-claim?name=" +
                     claim.name +
                     "&user=" +
@@ -110,7 +110,10 @@ function Row(props) {
                       <TableCell align="center">
                         <Button
                           endIcon={<DownloadIcon />}
-                          href={process.env.REACT_APP_API_URL + info.kubeconfig}
+                          href={
+                            process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL +
+                            info.kubeconfig
+                          }
                         >
                           Kubeconfig
                         </Button>
@@ -151,13 +154,17 @@ function ClusterClaims() {
   const [loading, setLoading] = useState(false);
 
   const getUser = async () => {
-    const resp = await httpClient.get(process.env.REACT_APP_API_URL + "/@me");
+    const resp = await httpClient.get(
+      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/@me",
+    );
     setUser(resp.data);
   };
 
   const getClusterClaims = async () => {
     setLoading(true);
-    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-claims");
+    const res = await fetch(
+      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/cluster-claims",
+    );
     const data = await res.json();
     setClusterClaims(data);
     setLoading(false);
