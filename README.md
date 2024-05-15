@@ -11,6 +11,6 @@ Support:
 ## Usage
 
 ```bash
-export HIVE_CLAIM_MANAGER_SERVER_API_URL="<server api url>"
+export REACT_APP_API_URL="<server api url>"
 npm run start
 ```

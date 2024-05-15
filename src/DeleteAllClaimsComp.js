@@ -16,7 +16,7 @@ function DeleteAllClaims() {
   const onClickHandler = async () => {
     setLoading(true);
     const res = await fetch(
-      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL +
+      process.env.REACT_APP_API_URL +
         "/all-user-claims-names?user=" +
         user.name,
     );
@@ -34,9 +34,7 @@ function DeleteAllClaims() {
       )
     ) {
       await httpClient.post(
-        process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL +
-          "/delete-all-claims?user=" +
-          user.name,
+        process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
       );
       window.location.reload();
     }
@@ -44,9 +42,7 @@ function DeleteAllClaims() {
 
   const getUser = async () => {
     setLoading(true);
-    const resp = await httpClient.get(
-      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/@me",
-    );
+    const resp = await httpClient.get(process.env.REACT_APP_API_URL + "/@me");
     setUser(resp.data);
     setLoading(false);
   };

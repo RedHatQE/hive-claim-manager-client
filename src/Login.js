@@ -11,13 +11,10 @@ const Login = () => {
 
   const logInUser = async () => {
     try {
-      await httpClient.post(
-        process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/login",
-        {
-          name,
-          password,
-        },
-      );
+      await httpClient.post(process.env.REACT_APP_API_URL + "/login", {
+        name,
+        password,
+      });
 
       window.location.href = "/";
     } catch (error) {
