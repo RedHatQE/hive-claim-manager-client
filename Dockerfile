@@ -5,9 +5,7 @@ RUN apk add --no-cache curl
 
 WORKDIR /hive-claim-system-client
 COPY . .
-RUN npm config set cache /tmp --global \
-  && npm install -g serve \
-  && npm run build
+RUN npm config set cache /tmp --global
 
 HEALTHCHECK CMD curl --fail http://127.0.0.1:3000 || exit 1
-CMD ["serve", "-s", "build"]
+CMD ["npm", "start"]
