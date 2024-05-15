@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ClusterPools from "./ClusterPoolsComp";
-import ClusterCliams from "./ClsuerClaimsComp";
+import ClusterCliams from "./ClusterClaimsComp";
 import DeleteAllClaims from "./DeleteAllClaimsComp";
 import httpClient from "./httpClient";
 import Button from "@mui/material/Button";

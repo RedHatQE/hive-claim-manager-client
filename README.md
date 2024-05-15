@@ -11,6 +11,6 @@ Support:
 ## Usage
 
 ```bash
-export REACT_APP_API_URL="<server api url>"
+export "http://127.0.0.1:5000"/gc="<server api url>"
 npm run start
 ```
