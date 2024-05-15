@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ClusterPools from "./ClusterPoolsComp";
-import ClusterCliams from "./ClsuerClaimsComp";
+import ClusterCliams from "./ClusterClaimsComp";
 import DeleteAllClaims from "./DeleteAllClaimsComp";
 import httpClient from "./httpClient";
 import Button from "@mui/material/Button";
@@ -11,9 +11,7 @@ function App() {
   const [user, setUser] = useState(null);
 
   const logoutUser = async () => {
-    await httpClient.post(
-      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/logout",
-    );
+    await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
     window.location.href = "/";
   };
 
@@ -21,7 +19,7 @@ function App() {
     (async () => {
       try {
         const resp = await httpClient.get(
-          process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/@me",
+          process.env.REACT_APP_API_URL + "/@me",
         );
         setUser(resp.data);
       } catch (error) {

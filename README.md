@@ -11,6 +11,6 @@ Support:
 ## Usage
 
 ```bash
-export HIVE_CLAIM_MANAGER_SERVER_API_URL="<server api url>"
+export "http://127.0.0.1:5000"/gc="<server api url>"
 npm run start
 ```
