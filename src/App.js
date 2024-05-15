@@ -11,7 +11,9 @@ function App() {
   const [user, setUser] = useState(null);
 
   const logoutUser = async () => {
-    await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
+    await httpClient.post(
+      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/logout",
+    );
     window.location.href = "/";
   };
 
@@ -19,7 +21,7 @@ function App() {
     (async () => {
       try {
         const resp = await httpClient.get(
-          process.env.REACT_APP_API_URL + "/@me",
+          process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/@me",
         );
         setUser(resp.data);
       } catch (error) {

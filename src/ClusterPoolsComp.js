@@ -22,7 +22,7 @@ function ClusterPools() {
   const onClickHandler = async (pool) => {
     setLoading(true);
     await httpClient.post(
-      process.env.REACT_APP_API_URL +
+      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL +
         "/claim-cluster?name=" +
         pool.name +
         "&user=" +
@@ -33,14 +33,18 @@ function ClusterPools() {
   };
   const getUser = async () => {
     setLoading(true);
-    const resp = await httpClient.get(process.env.REACT_APP_API_URL + "/@me");
+    const resp = await httpClient.get(
+      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/@me",
+    );
     setUser(resp.data);
     setLoading(false);
   };
 
   const getClusterPools = async () => {
     setLoading(true);
-    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-pools");
+    const res = await fetch(
+      process.env.HIVE_CLAIM_MANAGER_SERVER_API_URL + "/cluster-pools",
+    );
     const data = await res.json();
     setClusterPools(data);
     setLoading(false);
