@@ -8,4 +8,4 @@ COPY . .
 RUN npm config set cache /tmp --global
 
 HEALTHCHECK CMD curl --fail http://127.0.0.1:3000 || exit 1
-CMD ["npm", "start"]
+CMD ["npm", "run", "start-server"]
