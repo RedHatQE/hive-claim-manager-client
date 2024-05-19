@@ -22,7 +22,7 @@ import httpClient from "./httpClient";
 
 function Row(props) {
   const { row: claim } = props;
-  const { user: user } = props;
+  const { user } = props;
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -55,11 +55,7 @@ function Row(props) {
             onClick={() => {
               if (claim.name.includes(user.name)) {
                 httpClient.post(
-                  process.env.REACT_APP_API_URL +
-                    "/delete-claim?name=" +
-                    claim.name +
-                    "&user=" +
-                    user.name,
+                  "/delete-claim?name=" + claim.name + "&user=" + user.name,
                 );
                 window.location.reload();
               } else {
@@ -110,7 +106,7 @@ function Row(props) {
                       <TableCell align="center">
                         <Button
                           endIcon={<DownloadIcon />}
-                          href={process.env.REACT_APP_API_URL + info.kubeconfig}
+                          href={info.kubeconfig}
                         >
                           Kubeconfig
                         </Button>
@@ -151,13 +147,14 @@ function ClusterClaims() {
   const [loading, setLoading] = useState(false);
 
   const getUser = async () => {
-    const resp = await httpClient.get(process.env.REACT_APP_API_URL + "/@me");
-    setUser(resp.data);
+    const resp = await fetch("/@me");
+    const data = await resp.json();
+    setUser(data);
   };
 
   const getClusterClaims = async () => {
     setLoading(true);
-    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-claims");
+    const res = await fetch("/cluster-claims");
     const data = await res.json();
     setClusterClaims(data);
     setLoading(false);

@@ -1,11 +1,29 @@
-FROM node:22.1.0-alpine
+FROM quay.io/redhat_msi/qe-tools-base-image:latest
 
 EXPOSE 3000
-RUN apk add --no-cache curl
+RUN apt-get update \
+  && apt-get install -y redis npm nodejs --no-install-recommends \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /hive-claim-system-client
-COPY . .
+ENV APP_DIR=/hive-claim-manager
+ENV POETRY_HOME=$APP_DIR
+ENV PATH="$APP_DIR/bin:$PATH"
+
 RUN npm config set cache /tmp --global
+RUN npm install -g serve
+RUN mkdir -p /tmp/redis && chmod 777 /tmp/redis
+
+COPY . $APP_DIR/
+
+WORKDIR $APP_DIR
+
+RUN python3 -m pip install --no-cache-dir --upgrade pip --upgrade \
+  && python3 -m pip install --no-cache-dir poetry \
+  && poetry config cache-dir $APP_DIR \
+  && poetry config virtualenvs.in-project true \
+  && poetry config installer.max-workers 10 \
+  && poetry install
 
 HEALTHCHECK CMD curl --fail http://127.0.0.1:3000 || exit 1
-CMD ["npm", "run", "start-server"]
+ENTRYPOINT ["./entrypoint.sh"]
