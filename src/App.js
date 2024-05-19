@@ -8,30 +8,31 @@ import SendIcon from "@mui/icons-material/Send";
 import Box from "@mui/material/Box";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({ error: "Unauthorized" });
 
   const logoutUser = async () => {
-    await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
+    await httpClient.post("/logout");
     window.location.href = "/";
   };
 
+  const getUser = async () => {
+    try {
+      const resp = await fetch("/@me");
+      const data = await resp.json();
+      setUser(data);
+    } catch (error) {
+      console.log("Not authenticated");
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        const resp = await httpClient.get(
-          process.env.REACT_APP_API_URL + "/@me",
-        );
-        setUser(resp.data);
-      } catch (error) {
-        console.log("Not authenticated");
-      }
-    })();
+    getUser();
   }, []);
 
   return (
     <div>
       <h1 align="center">Hive claim manager</h1>
-      {user != null ? (
+      {user.error !== "Unauthorized" ? (
         <div>
           <h3 align="center">Welcome {user.name}</h3>
           <ClusterPools />

@@ -22,25 +22,22 @@ function ClusterPools() {
   const onClickHandler = async (pool) => {
     setLoading(true);
     await httpClient.post(
-      process.env.REACT_APP_API_URL +
-        "/claim-cluster?name=" +
-        pool.name +
-        "&user=" +
-        user.name,
+      "/claim-cluster?name=" + pool.name + "&user=" + user.name,
     );
     setLoading(false);
     window.location.reload();
   };
   const getUser = async () => {
     setLoading(true);
-    const resp = await httpClient.get(process.env.REACT_APP_API_URL + "/@me");
-    setUser(resp.data);
+    const resp = await fetch("/@me");
+    const data = await resp.json();
+    setUser(data);
     setLoading(false);
   };
 
   const getClusterPools = async () => {
     setLoading(true);
-    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-pools");
+    const res = await fetch("/cluster-pools");
     const data = await res.json();
     setClusterPools(data);
     setLoading(false);
