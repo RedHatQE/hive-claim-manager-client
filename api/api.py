@@ -53,14 +53,15 @@ def healthcheck() -> str:
 @app.route("/@me")
 def get_current_user() -> Tuple[Response, int]:
     user_id = session.get("user_id")
+    _error = {"error": "Unauthorized", "id": "", "name": ""}
 
     if not user_id:
-        return jsonify({"error": "Unauthorized", "id": "", "name": ""}), 401
+        return jsonify(_error), 401
 
     user: Any = User.query.filter_by(id=user_id).first()
 
     if not user:
-        return jsonify({"error": "Unauthorized", "id": "", "name": ""}), 401
+        return jsonify(_error), 401
 
     return jsonify({"id": user.id, "name": user.name, "error": ""}), 200
 
