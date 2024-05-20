@@ -39,12 +39,6 @@ def get_all_claims() -> List[Dict[str, str]]:
                 for _future in as_completed(_futures):
                     _info_dict.update(_future.result())
 
-            # _info_dict = {
-            #     "console": get_claimed_cluster_web_console(claim_name=_name),
-            #     "kubeconfig": get_claimed_cluster_kubeconfig(claim_name=_name),
-            #     "creds": get_claimed_cluster_creds(claim_name=_name),
-            #     "name": _instnce.metadata.name,
-            # }
         else:
             _info_dict = {
                 "console": "Not Ready",
