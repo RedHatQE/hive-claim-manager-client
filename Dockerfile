@@ -1,6 +1,8 @@
 FROM quay.io/redhat_msi/qe-tools-base-image:latest
 
 EXPOSE 3000
+EXPOSE 5000
+
 RUN apt-get update \
   && apt-get install -y redis npm nodejs --no-install-recommends \
   && apt-get clean \
@@ -24,6 +26,8 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip --upgrade \
   && poetry config virtualenvs.in-project true \
   && poetry config installer.max-workers 10 \
   && poetry install
+
+RUN npm run build
 
 HEALTHCHECK CMD curl --fail http://127.0.0.1:3000 || exit 1
 ENTRYPOINT ["./entrypoint.sh"]

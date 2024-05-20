@@ -11,14 +11,15 @@ function App() {
   const [user, setUser] = useState({ error: "Unauthorized" });
 
   const logoutUser = async () => {
-    await httpClient.post("/logout");
+    await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
     window.location.href = "/";
   };
 
   const getUser = async () => {
     try {
-      const resp = await fetch("/@me");
+      const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
       const data = await resp.json();
+      console.log(data);
       setUser(data);
     } catch (error) {
       console.log("Not authenticated");

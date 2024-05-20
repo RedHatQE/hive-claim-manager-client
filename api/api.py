@@ -18,7 +18,6 @@ from utils import (
     get_cluster_pools,
 )
 
-DB_URI = os.path.join("/tmp", "db.sqlite")
 app = Flask("hive-claims-manager")
 app.config.from_object(ApplicationConfig)
 bcrypt = Bcrypt(app)
@@ -46,21 +45,23 @@ with app.app_context():
 
 
 @app.route("/healthcheck")
-def healthcheck() -> str:
-    return "alive"
+def healthcheck() -> Tuple[Response, int]:
+    return jsonify({"status": "ok"}), 200
 
 
 @app.route("/@me")
 def get_current_user() -> Tuple[Response, int]:
-    user_id = session.get("user_id")
     _error = {"error": "Unauthorized", "id": "", "name": ""}
+    user_id = session.get("user_id")
 
     if not user_id:
+        app.logger.info("no USER ID")
         return jsonify(_error), 401
 
     user: Any = User.query.filter_by(id=user_id).first()
 
     if not user:
+        app.logger.info("no USER")
         return jsonify(_error), 401
 
     return jsonify({"id": user.id, "name": user.name, "error": ""}), 200
@@ -85,9 +86,9 @@ def login_user() -> Tuple[Response, int]:
 
 
 @app.route("/logout", methods=["POST"])
-def logout_user() -> str:
+def logout_user() -> Tuple[Response, int]:
     session.pop("user_id")
-    return "200"
+    return jsonify({"status": "ok"}), 200
 
 
 @app.route("/cluster-pools", methods=["GET"])  # type: ignore[type-var]
@@ -142,7 +143,7 @@ def main() -> None:
     app.logger.info(f"Starting {app.name} app")
     app.run(
         port=5000,
-        host=os.getenv("HIVE_CLAIM_FLASK_APP_HOST", "0.0.0.0"),
+        host="0.0.0.0",
         use_reloader=bool(os.getenv("HIVE_CLAIM_FLASK_APP_RELOAD", False)),
         debug=bool(os.getenv("HIVE_CLAIM_FLASK_APP_DEBUG", False)),
     )

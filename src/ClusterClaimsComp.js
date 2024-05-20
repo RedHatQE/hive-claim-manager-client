@@ -55,7 +55,11 @@ function Row(props) {
             onClick={() => {
               if (claim.name.includes(user.name)) {
                 httpClient.post(
-                  "/delete-claim?name=" + claim.name + "&user=" + user.name,
+                  process.env.REACT_APP_API_URL +
+                    "/delete-claim?name=" +
+                    claim.name +
+                    "&user=" +
+                    user.name,
                 );
                 window.location.reload();
               } else {
@@ -147,14 +151,14 @@ function ClusterClaims() {
   const [loading, setLoading] = useState(false);
 
   const getUser = async () => {
-    const resp = await fetch("/@me");
+    const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
     const data = await resp.json();
     setUser(data);
   };
 
   const getClusterClaims = async () => {
     setLoading(true);
-    const res = await fetch("/cluster-claims");
+    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-claims");
     const data = await res.json();
     setClusterClaims(data);
     setLoading(false);

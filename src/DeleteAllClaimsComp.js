@@ -15,7 +15,11 @@ function DeleteAllClaims() {
 
   const onClickHandler = async () => {
     setLoading(true);
-    const res = await fetch("/all-user-claims-names?user=" + user.name);
+    const res = await fetch(
+      process.env.REACT_APP_API_URL +
+        "/all-user-claims-names?user=" +
+        user.name,
+    );
     const data = await res.json();
     setLoading(false);
     console.log(data);
@@ -29,14 +33,16 @@ function DeleteAllClaims() {
           "?",
       )
     ) {
-      await httpClient.post("/delete-all-claims?user=" + user.name);
+      await httpClient.post(
+        process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
+      );
       window.location.reload();
     }
   };
 
   const getUser = async () => {
     setLoading(true);
-    const resp = await fetch("/@me");
+    const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
     const data = await resp.json();
     setUser(data);
     setLoading(false);

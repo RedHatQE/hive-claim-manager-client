@@ -9,4 +9,4 @@ poetry run python api/api.py &
 while ! curl http://127.0.0.1:5000/healtcheck; do sleep 1; done
 echo "API started"
 
-npm run start-server
+serve -s build

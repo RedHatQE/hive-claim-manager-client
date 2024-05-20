@@ -11,7 +11,7 @@ const Login = () => {
 
   const logInUser = async () => {
     try {
-      await httpClient.post("/login", {
+      await httpClient.post(process.env.REACT_APP_API_URL + "/login", {
         name,
         password,
       });
