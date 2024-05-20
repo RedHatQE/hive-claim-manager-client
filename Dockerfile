@@ -15,8 +15,7 @@ ENV POETRY_HOME=$APP_DIR
 ENV PATH="$APP_DIR/bin:$PATH"
 
 RUN npm config set cache /tmp --global \
-  && npm install -g serve \
-  && npm install --save-dev env-cmd
+  && npm install -g serve
 
 RUN mkdir -p /tmp/redis && chmod 777 /tmp/redis
 
