@@ -19,7 +19,6 @@ function App() {
     try {
       const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
       const data = await resp.json();
-      console.log(data);
       setUser(data);
     } catch (error) {
       console.log("Not authenticated");

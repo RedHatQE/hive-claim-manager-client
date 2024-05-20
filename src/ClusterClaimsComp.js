@@ -158,9 +158,10 @@ function ClusterClaims() {
 
   const getClusterClaims = async () => {
     setLoading(true);
-    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-claims");
-    const data = await res.json();
-    setClusterClaims(data);
+    await fetch(process.env.REACT_APP_API_URL + "/cluster-claims")
+      .then((res) => res.json())
+      .then((res) => setClusterClaims(res))
+      .catch((err) => console.log(err));
     setLoading(false);
   };
 

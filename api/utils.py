@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from kubernetes.dynamic.resource import ResourceInstance
-from ocp_resources.cluster_claim import ClusterClaim
+from ocp_resources.cluster_claim import ClusterClaim, NamespacedResource
 from ocp_resources.cluster_pool import ClusterPool
 from ocp_resources.cluster_deployment import ClusterDeployment
 from ocp_resources.secret import Secret
@@ -14,9 +14,9 @@ HIVE_CLUSTER_NAMESPACE = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
 
 
 def get_all_claims() -> List[Dict[str, str]]:
-    def _claims(_claim: ClusterClaim) -> List[Dict[str, str]]:
+    def _claims(_claim: NamespacedResource) -> List[Dict[str, str]]:
         res = []
-        _instnce: ResourceInstance = _claim.instance
+        _instnce = _claim.instance
         _namespace = _instnce.spec.namespace
         _name = _instnce.metadata.name
         _cluster_info = {
