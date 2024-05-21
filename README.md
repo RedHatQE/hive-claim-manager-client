@@ -10,10 +10,12 @@ Support:
 
 ## Usage
 
-### Docker compose
+### Local Development
 
 Edit [docker-compose.example.yaml](docker-compose.example.yaml)
 
 Run `docker compose -f .local/docker-compose.yaml up --watch --build`
 
 Open <a href="http://localhost" target="_blank">localhost</a> in browser, login with `admin` (superuser) or `dev` (password `dev`)
+
+Node server and Flask server will be automatically reloaded on file changes.
