@@ -27,14 +27,6 @@ def create_users() -> None:
         db.session.commit()
 
 
-# with app.app_context():
-#     db.drop_all()
-#     db.session.commit()
-#     db.create_all()
-#     create_users()
-#     db.session.commit()
-
-
 @app.route("/api/healthcheck")
 def healthcheck() -> Tuple[Response, int]:
     return jsonify({"status": "ok"}), 200

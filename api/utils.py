@@ -166,7 +166,7 @@ def get_claimed_cluster_creds(claim_name: str, dyn_client: DynamicClient) -> Dic
 def get_claimed_cluster_kubeconfig(claim_name: str, dyn_client: DynamicClient) -> Dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name, dyn_client=dyn_client)
     if isinstance(_cluster_deployment, str):
-        return {"kubeoncig": ""}
+        return {"kubeconfig": ""}
 
     _secret = Secret(
         name=_cluster_deployment.instance.spec.clusterMetadata.adminKubeconfigSecretRef.name,
