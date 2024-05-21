@@ -47,6 +47,7 @@ services:
       - HIVE_CLAIM_FLASK_APP_SECRET_KEY=<secret_key for flask>
       - HIVE_CLAIM_FLASK_APP_NAMESPACE=<hive namespace>
       - HIVE_CLAIM_FLASK_APP_DEBUG=true
+      - HIVE_CLAIM_FLASK_APP_RELOAD=true
       - HIVE_CLAIM_MANAGER_SUPERUSER_NAME=<superuser name>
       - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
       - KUBECONFIG=/root/.kube/config
