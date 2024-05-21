@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, Dict, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from kubernetes.dynamic.resource import ResourceInstance
@@ -15,26 +16,23 @@ HIVE_CLUSTER_NAMESPACE = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
 
 def get_all_claims() -> List[Dict[str, str]]:
     def _claims(_claim: NamespacedResource, _dyn_client: DynamicClient) -> List[Dict[str, str]]:
-        res = []
-        _instnce = _claim.instance
-        _namespace = _instnce.spec.namespace
-        _name = _instnce.metadata.name
+        _res = []
+        _instance = _claim.instance
+        _namespace = _instance.spec.namespace
+        _name = _instance.metadata.name
         _cluster_info = {
-            "name": _name,
-            "namespace": _namespace or "Not Ready",
-            "pool": _instnce.spec.clusterPoolName,
+            "name": _name, "namespace": _namespace or "Not Ready", "pool": _instance.spec.clusterPoolName, "info": []
         }
-        _cluster_info["info"] = []
         if _namespace:
-            _info_dict = {"name": _instnce.metadata.name}
-            with ThreadPoolExecutor() as executor:
+            _info_dict = {"name": _instance.metadata.name}
+            with ThreadPoolExecutor() as _executor:
                 _futures = []
                 for _func in (
                     get_claimed_cluster_web_console,
                     get_claimed_cluster_kubeconfig,
                     get_claimed_cluster_creds,
                 ):
-                    _futures.append(executor.submit(_func, _name, _dyn_client))
+                    _futures.append(_executor.submit(_func, _name, _dyn_client))
 
                 for _future in as_completed(_futures):
                     _info_dict.update(_future.result())
@@ -49,8 +47,8 @@ def get_all_claims() -> List[Dict[str, str]]:
 
         _cluster_info["info"].append(_info_dict)
 
-        res.append(_cluster_info)
-        return res
+        _res.append(_cluster_info)
+        return _res
 
     with ThreadPoolExecutor() as executor:
         dyn_client = get_client()
@@ -68,10 +66,10 @@ def get_cluster_pools() -> List[Dict[str, str]]:
     res = []
     dyn_client = get_client()
     for cp in ClusterPool.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        _instnce: ResourceInstance = cp.instance
-        _name = _instnce.metadata.name
-        _size = _instnce.spec.size
-        _status = _instnce.status
+        _instance: ResourceInstance = cp.instance
+        _name = _instance.metadata.name
+        _size = _instance.spec.size
+        _status = _instance.status
         _pool = {
             "name": _name,
             "size": _size,
@@ -114,7 +112,7 @@ def get_all_user_claims_names(user: str) -> List[str]:
     dyn_client = get_client()
     _claim: Any
     for _claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        if user in _claim.name:
+        if user in (_claim.name, os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")):
             _user_claims.append(_claim.name)
 
     return _user_claims
@@ -125,7 +123,7 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
     deleted_claims = []
     _claim: Any
     for _claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        if user in _claim.name:
+        if user in (_claim.name, os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")):
             _claim.clean_up()
             deleted_claims.append(_claim.name)
 

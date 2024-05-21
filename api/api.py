@@ -98,7 +98,7 @@ def claim_cluster_endpoint() -> Tuple[Response, int]:
 def delete_claim_endpoint() -> Tuple[Response, int]:
     _claim_name: str = request.args.get("name", "")
     _user: str = request.args.get("user", "")
-    if _user not in _claim_name:
+    if _user not in (_claim_name, os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")):
         return jsonify({"error": "User is not allowed to delete this claim", "name": ""}), 401
 
     claim_cluster_delete(claim_name=_claim_name.strip())
