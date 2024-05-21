@@ -15,7 +15,6 @@ const Login = () => {
         name,
         password,
       });
-
       window.location.href = "/";
     } catch (error) {
       if (error.response.status === 401) {
