@@ -64,7 +64,7 @@ function Row(props) {
                     claim.name +
                     "&user=" +
                     user.name,
-                )
+                );
                 window.location.reload();
                 };
               } else {
