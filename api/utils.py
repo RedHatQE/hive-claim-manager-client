@@ -21,7 +21,10 @@ def get_all_claims() -> List[Dict[str, str]]:
         _namespace = _instance.spec.namespace
         _name = _instance.metadata.name
         _cluster_info = {
-            "name": _name, "namespace": _namespace or "Not Ready", "pool": _instance.spec.clusterPoolName, "info": []
+            "name": _name,
+            "namespace": _namespace or "Not Ready",
+            "pool": _instance.spec.clusterPoolName,
+            "info": [],
         }
         if _namespace:
             _info_dict = {"name": _instance.metadata.name}
