@@ -54,15 +54,19 @@ function Row(props) {
             color="error"
             startIcon={<DeleteIcon />}
             onClick={() => {
-              if (claim.name.includes(user.name)) {
+              if (claim.name.includes(user.name) || user.admin) {
+                if (window.confirm(
+                    "\n\nAre you sure you want to delete claim " + claim.name + "?",
+                )) {
                 httpClient.post(
                   process.env.REACT_APP_API_URL +
                     "/delete-claim?name=" +
                     claim.name +
                     "&user=" +
                     user.name,
-                );
+                )
                 window.location.reload();
+                };
               } else {
                 alert("You can only delete your own claims");
               }

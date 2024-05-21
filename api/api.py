@@ -22,7 +22,7 @@ def healthcheck() -> Tuple[Response, int]:
 
 @app.route("/api/@me")
 def get_current_user() -> Tuple[Response, int]:
-    _error = {"error": "Unauthorized", "id": "", "name": ""}
+    _error = {"error": "Unauthorized", "id": "", "admin": False, "name": ""}
     user_id = session.get("user_id")
 
     if not user_id:
@@ -35,7 +35,7 @@ def get_current_user() -> Tuple[Response, int]:
         app.logger.info("no USER")
         return jsonify(_error), 401
 
-    return jsonify({"id": user.id, "name": user.name, "error": ""}), 200
+    return jsonify({"id": user.id, "name": user.name, "admin": user.admin, "error": ""}), 200
 
 
 @app.route("/api/login", methods=["POST"])

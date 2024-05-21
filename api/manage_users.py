@@ -15,7 +15,11 @@ def create_users() -> None:
         username, password = user_data.split(":")
         app.logger.info(f"Creating user {username}")
         hashed_password = bcrypt.generate_password_hash(password)
-        new_user = User(name=username, password=hashed_password)
+        new_user = User(
+            name=username,
+            password=hashed_password,
+            admin=os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME") == username,
+        )
         db.session.add(new_user)
         db.session.commit()
 
