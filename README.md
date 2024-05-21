@@ -1,4 +1,4 @@
-# React client for [hive-cliam-manager-server](https://github.com/RedHatQE/hive-claim-manager-server)
+# React client for <a href="https://github.com/RedHatQE/hive-claim-manager" target="_blank">Hive Claim Manager</a>
 
 UI for managing Openshift HIVE clusters pools.
 Support:
@@ -8,17 +8,12 @@ Support:
 - Delete claims from pools
 - Get cluster info (console URL, user/password and kubeconfig) from claimed cluster.
 
-## pre-requisites
-
-For local development:
-
-- Install [redis](https://redis.io/)
-- Run `npm install` from the repository root directory
-
 ## Usage
 
 ### Docker compose
 
 Edit [docker-compose.example.yaml](docker-compose.example.yaml)
+
 Run `docker compose -f .local/docker-compose.yaml up --watch --build`
-Open [localhost](http://localhost) in browser
+
+Open <a href="http://localhost" target="_blank">localhost</a> in browser, login with `admin` (superuser) or `dev` (password `dev`)
