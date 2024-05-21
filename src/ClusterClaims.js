@@ -66,7 +66,7 @@ function Row(props) {
                     user.name,
                 );
                 window.location.reload();
-                };
+                }
               } else {
                 alert("You can only delete your own claims");
               }
