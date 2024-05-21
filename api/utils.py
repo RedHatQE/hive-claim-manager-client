@@ -177,4 +177,4 @@ def get_claimed_cluster_kubeconfig(claim_name: str, dyn_client: DynamicClient) -
     with open(f"/tmp/{_kubeconfig_file_name}", "w") as fd:
         fd.write(base64.b64decode(_secret.instance.data.kubeconfig).decode())
 
-    return {"kubeoncig": f"/kubeconfig/{_kubeconfig_file_name}"}
+    return {"kubeconfig": f"/kubeconfig/{_kubeconfig_file_name}"}
