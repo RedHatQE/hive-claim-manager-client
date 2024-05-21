@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import ClusterPools from "./ClusterPoolsComp";
-import ClusterCliams from "./ClusterClaimsComp";
-import DeleteAllClaims from "./DeleteAllClaimsComp";
+import ClusterPools from "./ClusterPools";
+import ClusterCliams from "./ClusterClaims";
+import DeleteAllClaims from "./DeleteAllClaims";
 import httpClient from "./httpClient";
 import Button from "@mui/material/Button";
 import SendIcon from "@mui/icons-material/Send";
 import Box from "@mui/material/Box";
+import isUserAuthenticated from "./IsUserAuthenticated";
 
 function App() {
   const [user, setUser] = useState({ error: "Unauthorized" });
@@ -16,14 +17,8 @@ function App() {
   };
 
   const getUser = async () => {
-    try {
-      const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
-      const data = await resp.json();
-      console.log(data);
-      setUser(data);
-    } catch (error) {
-      console.log("Not authenticated");
-    }
+    const user = await isUserAuthenticated();
+    setUser(user);
   };
 
   useEffect(() => {

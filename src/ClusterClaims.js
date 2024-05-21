@@ -19,6 +19,7 @@ import Typography from "@mui/material/Typography";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import httpClient from "./httpClient";
+import isUserAuthenticated from "./IsUserAuthenticated";
 
 function Row(props) {
   const { row: claim } = props;
@@ -151,16 +152,16 @@ function ClusterClaims() {
   const [loading, setLoading] = useState(false);
 
   const getUser = async () => {
-    const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
-    const data = await resp.json();
-    setUser(data);
+    const user = await isUserAuthenticated();
+    setUser(user);
   };
 
   const getClusterClaims = async () => {
     setLoading(true);
-    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-claims");
-    const data = await res.json();
-    setClusterClaims(data);
+    await fetch(process.env.REACT_APP_API_URL + "/cluster-claims")
+      .then((res) => res.json())
+      .then((res) => setClusterClaims(res))
+      .catch((err) => console.log(err));
     setLoading(false);
   };
 

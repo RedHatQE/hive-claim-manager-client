@@ -13,6 +13,7 @@ import Box from "@mui/material/Box";
 
 import SendIcon from "@mui/icons-material/Send";
 import httpClient from "./httpClient";
+import isUserAuthenticated from "./IsUserAuthenticated";
 
 function ClusterPools() {
   const [clusterPools, setClusterPools] = useState([]);
@@ -32,11 +33,8 @@ function ClusterPools() {
     window.location.reload();
   };
   const getUser = async () => {
-    setLoading(true);
-    const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
-    const data = await resp.json();
-    setUser(data);
-    setLoading(false);
+    const user = await isUserAuthenticated();
+    setUser(user);
   };
 
   const getClusterPools = async () => {

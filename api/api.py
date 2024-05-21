@@ -1,14 +1,10 @@
 import os
-from typing import Any, Dict, List, Tuple
-from flask import Flask, Response, request, send_file
+from typing import Any, Tuple
+from flask import Response, request, send_file
 from flask import jsonify, session
-from flask_bcrypt import Bcrypt
-from flask_cors import CORS
-from flask_session import Session
-from config import ApplicationConfig
 from models import db, User
 from pyaml_env import parse_config
-
+from app import app
 from utils import (
     claim_cluster,
     claim_cluster_delete,
@@ -17,39 +13,26 @@ from utils import (
     get_all_user_claims_names,
     get_cluster_pools,
 )
-
-app = Flask("hive-claims-manager")
-app.config.from_object(ApplicationConfig)
-bcrypt = Bcrypt(app)
-CORS(app, supports_credentials=True)
-server_session = Session(app)
-db.init_app(app)
+from app import bcrypt
 
 
 def create_users() -> None:
     _config = parse_config(os.environ["HIVE_CLAIM_FLASK_APP_USERS_FILE"])
     password = _config["password"]
     for user in _config["users"]:
+        app.logger.info(f"Creating user {user}")
         hashed_password = bcrypt.generate_password_hash(password)
         new_user = User(name=user, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
 
-with app.app_context():
-    db.drop_all()
-    db.session.commit()
-    db.create_all()
-    create_users()
-    db.session.commit()
-
-
-@app.route("/healthcheck")
+@app.route("/api/healthcheck")
 def healthcheck() -> Tuple[Response, int]:
     return jsonify({"status": "ok"}), 200
 
 
-@app.route("/@me")
+@app.route("/api/@me")
 def get_current_user() -> Tuple[Response, int]:
     _error = {"error": "Unauthorized", "id": "", "name": ""}
     user_id = session.get("user_id")
@@ -67,7 +50,7 @@ def get_current_user() -> Tuple[Response, int]:
     return jsonify({"id": user.id, "name": user.name, "error": ""}), 200
 
 
-@app.route("/login", methods=["POST"])
+@app.route("/api/login", methods=["POST"])
 def login_user() -> Tuple[Response, int]:
     name = request.json["name"]
     password = request.json["password"]
@@ -85,33 +68,33 @@ def login_user() -> Tuple[Response, int]:
     return jsonify({"id": user.id, "name": user.name}), 200
 
 
-@app.route("/logout", methods=["POST"])
+@app.route("/api/logout", methods=["POST"])
 def logout_user() -> Tuple[Response, int]:
     session.pop("user_id")
     return jsonify({"status": "ok"}), 200
 
 
-@app.route("/cluster-pools", methods=["GET"])  # type: ignore[type-var]
-def cluster_pools_endpoint() -> List[Dict[str, str]]:
-    return get_cluster_pools()
+@app.route("/api/cluster-pools", methods=["GET"])
+def cluster_pools_endpoint() -> Tuple[Response, int]:
+    return jsonify(get_cluster_pools()), 200
 
 
-@app.route("/cluster-claims", methods=["GET"])  # type: ignore[type-var]
-def cluster_claims_endpoint() -> List[Dict[str, str]]:
-    return get_all_claims()
+@app.route("/api/cluster-claims", methods=["GET"])
+def cluster_claims_endpoint() -> Tuple[Response, int]:
+    return jsonify(get_all_claims()), 200
 
 
-@app.route("/claim-cluster", methods=["POST"])
-def claim_cluster_endpoint() -> Tuple[Dict[str, str], int]:
+@app.route("/api/claim-cluster", methods=["POST"])
+def claim_cluster_endpoint() -> Tuple[Response, int]:
     _user: str = request.args.get("user", "")
     _pool_name: str = request.args.get("name", "")
     if not _user or not _pool_name:
-        return {"error": "User or Pool name missing", "name": ""}, 401
+        return jsonify({"error": "User or Pool name missing", "name": ""}), 401
 
-    return claim_cluster(user=_user, pool=_pool_name), 200
+    return jsonify(claim_cluster(user=_user, pool=_pool_name)), 200
 
 
-@app.route("/delete-claim", methods=["POST"])
+@app.route("/api/delete-claim", methods=["POST"])
 def delete_claim_endpoint() -> Tuple[Response, int]:
     _claim_name: str = request.args.get("name", "")
     _user: str = request.args.get("user", "")
@@ -122,25 +105,26 @@ def delete_claim_endpoint() -> Tuple[Response, int]:
     return jsonify({"deleted": _claim_name}), 200
 
 
-@app.route("/all-user-claims-names", methods=["GET"])
+@app.route("/api/all-user-claims-names", methods=["GET"])
 def all_user_claims_names_endpoint() -> Tuple[Response, int]:
     _user: str = request.args.get("user", "")
     return jsonify(get_all_user_claims_names(user=_user)), 200
 
 
-@app.route("/delete-all-claims", methods=["POST"])
+@app.route("/api/delete-all-claims", methods=["POST"])
 def delete_all_claims_endpoint() -> Tuple[Response, int]:
     _user: str = request.args.get("user", "")
     return jsonify(delete_all_claims(user=_user)), 200
 
 
-@app.route("/kubeconfig/<filename>", methods=["GET"])
+@app.route("/api/kubeconfig/<filename>", methods=["GET"])
 def download_kubeconfig_endpoint(filename: str) -> Response:
     return send_file(f"/tmp/{filename}", download_name=filename, as_attachment=True)  # type: ignore[call-arg]
 
 
 def main() -> None:
     app.logger.info(f"Starting {app.name} app")
+
     app.run(
         port=5000,
         host="0.0.0.0",

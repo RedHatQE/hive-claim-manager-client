@@ -8,6 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
+import isUserAuthenticated from "./IsUserAuthenticated";
 
 function DeleteAllClaims() {
   const [loading, setLoading] = useState(false);
@@ -41,11 +42,8 @@ function DeleteAllClaims() {
   };
 
   const getUser = async () => {
-    setLoading(true);
-    const resp = await fetch(process.env.REACT_APP_API_URL + "/@me");
-    const data = await resp.json();
-    setUser(data);
-    setLoading(false);
+    const user = await isUserAuthenticated();
+    setUser(user);
   };
 
   useEffect(() => {
