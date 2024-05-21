@@ -2,8 +2,7 @@ import os
 from typing import Any, Tuple
 from flask import Response, request, send_file
 from flask import jsonify, session
-from models import db, User
-from pyaml_env import parse_config
+from models import User
 from app import app
 from utils import (
     claim_cluster,
@@ -14,17 +13,6 @@ from utils import (
     get_cluster_pools,
 )
 from app import bcrypt
-
-
-def create_users() -> None:
-    _config = parse_config(os.environ["HIVE_CLAIM_FLASK_APP_USERS_FILE"])
-    password = _config["password"]
-    for user in _config["users"]:
-        app.logger.info(f"Creating user {user}")
-        hashed_password = bcrypt.generate_password_hash(password)
-        new_user = User(name=user, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
 
 
 @app.route("/api/healthcheck")

@@ -8,6 +8,11 @@ Support:
 - Delete claims from pools
 - Get cluster info (console URL, user/password and kubeconfig) from claimed cluster.
 
+## pre-requisites
+For local development:
+- Install [redis](https://redis.io/)
+- Run `npm install` from the repository root directory
+
 ## Usage
 
 ### Docker
@@ -26,7 +31,7 @@ services:
       context: .
       args:
         - REACT_APP_API_URL=http://localhost:5000/api
-        - DEVELOPER_MODE=true
+        - DEVELOPMENT=true
     container_name: hive-claim-manager
     dns:
       - 8.8.8.8 # Opotional, added only if needed

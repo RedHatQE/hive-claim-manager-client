@@ -11,12 +11,11 @@ cli = FlaskGroup(app)
 
 
 def create_users() -> None:
-    _config = parse_config(os.environ["HIVE_CLAIM_FLASK_APP_USERS_FILE"])
-    password = _config["password"]
-    for user in _config["users"]:
-        app.logger.info(f"Creating user {user}")
+    for user_data in parse_config(os.environ["HIVE_CLAIM_FLASK_APP_USERS_FILE"])["users"]:
+        username, password = user_data.split(":")
+        app.logger.info(f"Creating user {username}")
         hashed_password = bcrypt.generate_password_hash(password)
-        new_user = User(name=user, password=hashed_password)
+        new_user = User(name=username, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
