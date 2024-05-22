@@ -112,7 +112,6 @@ def download_kubeconfig_endpoint(filename: str) -> Response:
 
 def main() -> None:
     app.logger.info(f"Starting {app.name} app")
-
     app.run(
         port=5000,
         host="0.0.0.0",
