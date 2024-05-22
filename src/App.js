@@ -6,46 +6,46 @@ import httpClient from "./httpClient";
 import Button from "@mui/material/Button";
 import isUserAuthenticated from "./IsUserAuthenticated";
 
-function App() {
-  const [user, setUser] = useState({ error: "Unauthorized" });
+class AppWrapper extends React.Component {
+  constructor() {
+    super();
+    this.user = isUserAuthenticated();
+  }
 
-  const logoutUser = async () => {
+  async logoutUser() {
     await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
     window.location.href = "/login";
-  };
+  }
 
-  const getUser = async () => {
-    console.log("Getting user");
-    const user = await isUserAuthenticated();
-    console.log(user);
-    return user;
-  };
-
-  return (
-    <div>
-      <h1 align="center">Hive claim manager</h1>
-      {getUser().error === "Unauthorized" ? (
-        (window.location.href = "/login")
-      ) : (
-        <div>
-          <h3 align="center">Welcome {user.name}</h3>
-          <ClusterPools />
-          <ClusterCliams />
-          <DeleteAllClaims />
-          <br />
-          <Button
-            color="error"
-            variant="contained"
-            size="small"
-            onClick={logoutUser}
-          >
-            {" "}
-            Logout{" "}
-          </Button>
-        </div>
-      )}
-    </div>
-  );
+  render() {
+    return (
+      <div>
+        <h1 align="center">Hive claim manager</h1>
+        {this.user.error === "Unauthorized" ? (
+          (window.location.href = "/login")
+        ) : (
+          <div>
+            <h3 align="center">Welcome {this.user.name}</h3>
+            <ClusterPools />
+            <ClusterCliams />
+            <DeleteAllClaims />
+            <br />
+            <Button
+              color="error"
+              variant="contained"
+              size="small"
+              onClick={this.logoutUser}
+            >
+              {" "}
+              Logout{" "}
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
 }
 
-export default App;
+export default function App() {
+  return <AppWrapper />;
+}
