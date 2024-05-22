@@ -8,16 +8,18 @@ Support:
 - Delete claims from pools
 - Get cluster info (console URL, user/password and kubeconfig) from claimed cluster.
 
-## pre-requisites
-For local development:
-- Install [redis](https://redis.io/)
-- Run `npm install` from the repository root directory
-
-## Usage
-
 ### Local Development
 
+Required docker compose version >= 2.22.0
+
 Edit [docker-compose.example.yaml](docker-compose.example.yaml)
+
+Create docker network, if it does not exist:
+
+```bash
+docker network ls
+docker network create hive-claim-manager
+```
 
 Run `docker compose -f .local/docker-compose.yaml up --watch --build`
 

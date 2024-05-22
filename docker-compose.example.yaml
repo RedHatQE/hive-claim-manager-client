@@ -37,6 +37,7 @@ services:
       - KUBECONFIG=/root/.kube/config
       - HIVE_CLAIM_MANAGER_SUPERUSER_NAME=admin
       - DEVELOPMENT=true
+      - HIVE_CLAIM_MANAGER_SQLALCHEMY_ECHO=true # optional; echo database actions to console
     depends_on:
       - nginx
 
