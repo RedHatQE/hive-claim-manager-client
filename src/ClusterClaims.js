@@ -54,7 +54,8 @@ function Row(props) {
             color="error"
             startIcon={<DeleteIcon />}
             onClick={() => {
-              if ((claim.name.includes(user.name) || user.admin) && window.confirm(
+              if (claim.name.includes(user.name) || user.admin) {
+                if (window.confirm(
                     "\n\nAre you sure you want to delete claim " + claim.name + "?",
                 )) {
                 httpClient.post(
@@ -66,6 +67,7 @@ function Row(props) {
                 );
                 window.location.reload();
                 }
+              }
               else {
                 alert("You can only delete your own claims");
               }

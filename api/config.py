@@ -9,7 +9,7 @@ class ApplicationConfig:
     SECRET_KEY = os.environ["HIVE_CLAIM_FLASK_APP_SECRET_KEY"]
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = os.getenv("HIVE_CLAIM_MANAGER_SQLALCHEMY_ECHO", False)
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_URI}"
 
     SESSION_TYPE = "redis"

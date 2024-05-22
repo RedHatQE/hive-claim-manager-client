@@ -86,17 +86,17 @@ def claim_cluster_endpoint() -> Tuple[Response, int]:
 def delete_claim_endpoint() -> Tuple[Response, int]:
     _claim_name: str = request.args.get("name", "")
     _user: str = request.args.get("user", "")
-    if _user not in (_claim_name, os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")):
-        return jsonify({"error": "User is not allowed to delete this claim", "name": ""}), 401
+    if _user in _claim_name or _user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
+        claim_cluster_delete(claim_name=_claim_name.strip())
+        return jsonify({"deleted": _claim_name}), 200
 
-    claim_cluster_delete(claim_name=_claim_name.strip())
-    return jsonify({"deleted": _claim_name}), 200
+    return jsonify({"error": "User is not allowed to delete this claim", "name": ""}), 401
 
 
 @app.route("/api/all-user-claims-names", methods=["GET"])
 def all_user_claims_names_endpoint() -> Tuple[Response, int]:
     _user: str = request.args.get("user", "")
-    return jsonify(get_all_user_claims_names(user=_user)), 200
+    return jsonify(get_all_user_claims_names(user=_user, logger=app.logger)), 200
 
 
 @app.route("/api/delete-all-claims", methods=["POST"])

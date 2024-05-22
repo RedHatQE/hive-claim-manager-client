@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import logging
 from typing import Any, Dict, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from kubernetes.dynamic.resource import ResourceInstance
@@ -110,13 +112,16 @@ def claim_cluster_delete(claim_name: str) -> None:
     _claim.clean_up()
 
 
-def get_all_user_claims_names(user: str) -> List[str]:
+def get_all_user_claims_names(user: str, logger: logging.Logger) -> List[str]:
     _user_claims: List[str] = []
     dyn_client = get_client()
     _claim: Any
     for _claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        if user in (_claim.name, os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")):
+        logger.info(f"User: {user} claim {_claim.name}")
+        if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
             _user_claims.append(_claim.name)
+
+    logger.info(f"User {user} claims: {_user_claims}")
 
     return _user_claims
 
@@ -126,7 +131,7 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
     deleted_claims = []
     _claim: Any
     for _claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        if user in (_claim.name, os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")):
+        if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
             _claim.clean_up()
             deleted_claims.append(_claim.name)
 
