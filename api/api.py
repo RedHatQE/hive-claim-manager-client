@@ -96,7 +96,7 @@ def delete_claim_endpoint() -> Tuple[Response, int]:
 @app.route("/api/all-user-claims-names", methods=["GET"])
 def all_user_claims_names_endpoint() -> Tuple[Response, int]:
     _user: str = request.args.get("user", "")
-    return jsonify(get_all_user_claims_names(user=_user, logger=app.logger)), 200
+    return jsonify(get_all_user_claims_names(user=_user)), 200
 
 
 @app.route("/api/delete-all-claims", methods=["POST"])

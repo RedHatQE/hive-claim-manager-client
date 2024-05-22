@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from typing import Any, Dict, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from kubernetes.dynamic.resource import ResourceInstance
@@ -13,7 +12,8 @@ import os
 
 import shortuuid
 
-from api.app import ocp_client
+from app import app, ocp_client
+
 
 HIVE_CLUSTER_NAMESPACE = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
 
@@ -78,7 +78,7 @@ def get_cluster_pools() -> List[Dict[str, str]]:
         _pool = {
             "name": _name,
             "size": _size,
-            "claimed": _size - get_num_cluster_pool_claims(pool_name=_name),
+            "claimed": get_num_cluster_pool_claims(pool_name=_name),
             "available": _status.size if _status else 0,
         }
         res.append(_pool)
@@ -112,15 +112,14 @@ def claim_cluster_delete(claim_name: str) -> None:
     _claim.clean_up(wait=False)
 
 
-def get_all_user_claims_names(user: str, logger: logging.Logger) -> List[str]:
+def get_all_user_claims_names(user: str) -> List[str]:
     _user_claims: List[str] = []
     _claim: Any
     for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        logger.info(f"User: {user} claim {_claim.name}")
         if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
             _user_claims.append(_claim.name)
 
-    logger.info(f"User {user} claims: {_user_claims}")
+    app.logger.info(f"User {user} claims: {_user_claims}")
 
     return _user_claims
 
@@ -190,11 +189,12 @@ def get_claimed_cluster_kubeconfig(claim_name: str) -> Dict[str, str]:
     return {"kubeconfig": f"/kubeconfig/{_kubeconfig_file_name}"}
 
 
-def get_num_cluster_pool_claims(pool_name: str) -> List[str]:
-    _claims: List[str] = []
+def get_num_cluster_pool_claims(pool_name: str) -> int:
+    num_claims = 0
 
     for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        if _claim.instance.spec.clusterPoolRef.name == pool_name:
-            _claims.append(_claim.name)
+        app.logger.info(f"{pool_name}   {_claim.name}")
+        if _claim.instance.spec.clusterPoolName == pool_name:
+            num_claims += 1
 
-    return _claims
+    return num_claims
