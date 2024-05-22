@@ -116,7 +116,7 @@ function Row(props) {
                       <TableCell align="center">
                         <Button
                           endIcon={<DownloadIcon />}
-                          href={info.kubeconfig}
+                          href={process.env.REACT_APP_API_URL + info.kubeconfig}
                         >
                           Kubeconfig
                         </Button>
