@@ -55,20 +55,23 @@ function Row(props) {
             startIcon={<DeleteIcon />}
             onClick={() => {
               if (claim.name.includes(user.name) || user.admin) {
-                if (window.confirm(
-                    "\n\nAre you sure you want to delete claim " + claim.name + "?",
-                )) {
-                httpClient.post(
-                  process.env.REACT_APP_API_URL +
-                    "/delete-claim?name=" +
-                    claim.name +
-                    "&user=" +
-                    user.name,
-                );
-                window.location.reload();
+                if (
+                  window.confirm(
+                    "\n\nAre you sure you want to delete claim " +
+                      claim.name +
+                      "?",
+                  )
+                ) {
+                  httpClient.post(
+                    process.env.REACT_APP_API_URL +
+                      "/delete-claim?name=" +
+                      claim.name +
+                      "&user=" +
+                      user.name,
+                  );
+                  window.location.reload();
                 }
-              }
-              else {
+              } else {
                 alert("You can only delete your own claims");
               }
             }}
@@ -177,13 +180,13 @@ function ClusterClaims() {
 
   return (
     <div>
+      <h3>Active Claims</h3>
       {loading ? (
         <Box sx={{ display: "flex" }}>
           <CircularProgress size={30} />
         </Box>
       ) : (
         <>
-          <h3>Active Claims</h3>
           <TableContainer component={Paper}>
             <Table aria-label="collapsible table">
               <TableHead>
