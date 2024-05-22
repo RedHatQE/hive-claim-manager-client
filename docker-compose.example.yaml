@@ -31,7 +31,6 @@ services:
       - HIVE_CLAIM_FLASK_APP_USERS_FILE=/users.yaml
       - HIVE_CLAIM_FLASK_APP_SECRET_KEY=localdevelopment
       - HIVE_CLAIM_FLASK_APP_NAMESPACE=<hive namespace>
-      - HIVE_NAMESPACE=msiqe
       - HIVE_CLAIM_FLASK_APP_DEBUG=true
       - HIVE_CLAIM_FLASK_APP_RELOAD=true
       - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials

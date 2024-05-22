@@ -21,6 +21,12 @@ Edit [docker-compose.example.yaml](docker-compose.example.yaml)
 
 Run `docker compose -f .local/docker-compose.yaml up --watch --build`
 
-Open <a href="http://localhost" target="_blank">localhost</a> in browser, login with `admin` (superuser) or `dev` (password `dev`)
+Open <a href="http://localhost" target="_blank">localhost</a> in browser
+
+The following users configured:
+
+- User: `admin` Password: `admin` # Superuser, can delete other users claims <!--pragma: allowlist secret-->
+- User: `dev` Password: `dev` <!--pragma: allowlist secret-->
+- User: `user` Password: `user` <!--pragma: allowlist secret-->
 
 Node server and Flask server will be automatically reloaded on file changes.
