@@ -18,13 +18,8 @@ function App() {
     console.log("Getting user");
     const user = await isUserAuthenticated();
     console.log(user);
-    // setUser(user);
     return user;
   };
-
-  // useEffect(() => {
-  //   getUser();
-  // }, []);
 
   return (
     <div>
