@@ -4,8 +4,6 @@ import ClusterCliams from "./ClusterClaims";
 import DeleteAllClaims from "./DeleteAllClaims";
 import httpClient from "./httpClient";
 import Button from "@mui/material/Button";
-import SendIcon from "@mui/icons-material/Send";
-import Box from "@mui/material/Box";
 import isUserAuthenticated from "./IsUserAuthenticated";
 
 function App() {
@@ -13,22 +11,27 @@ function App() {
 
   const logoutUser = async () => {
     await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
-    window.location.href = "/";
+    window.location.href = "/login";
   };
 
   const getUser = async () => {
+    console.log("Getting user");
     const user = await isUserAuthenticated();
-    setUser(user);
+    console.log(user);
+    // setUser(user);
+    return user;
   };
 
-  useEffect(() => {
-    getUser();
-  }, []);
+  // useEffect(() => {
+  //   getUser();
+  // }, []);
 
   return (
     <div>
       <h1 align="center">Hive claim manager</h1>
-      {user.error !== "Unauthorized" ? (
+      {getUser().error === "Unauthorized" ? (
+        (window.location.href = "/login")
+      ) : (
         <div>
           <h3 align="center">Welcome {user.name}</h3>
           <ClusterPools />
@@ -44,28 +47,6 @@ function App() {
             {" "}
             Logout{" "}
           </Button>
-        </div>
-      ) : (
-        <div>
-          <Box
-            component="form"
-            sx={{
-              "& .MuiTextField-root": { m: 1, width: "20ch" },
-            }}
-            noValidate
-            autoComplete="off"
-            display="flex"
-            justifyContent="center"
-            alignItems="top"
-            minHeight="100vh"
-          >
-            <div>
-              <Button variant="contained" endIcon={<SendIcon />} href="/login">
-                {" "}
-                Login{" "}
-              </Button>
-            </div>
-          </Box>
         </div>
       )}
     </div>
