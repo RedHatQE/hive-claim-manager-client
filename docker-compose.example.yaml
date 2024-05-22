@@ -37,6 +37,8 @@ services:
       - KUBECONFIG=/root/.kube/config
       - HIVE_CLAIM_MANAGER_SUPERUSER_NAME=admin
       - DEVELOPMENT=true
+    depends_on:
+      - nginx
 
   nginx:
     image: lscr.io/linuxserver/nginx:latest
