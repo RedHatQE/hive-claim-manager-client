@@ -1,0 +1,61 @@
+services:
+  hive-claim-manager:
+    build:
+      context: ../
+      args:
+        - REACT_APP_API_URL=http://localhost/api
+        - DEVELOPMENT=true
+    develop:
+      watch:
+        - action: sync
+          path: ../src
+          target: /hive-claim-manager/src
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ../api
+          target: /hive-claim-manager/api
+    container_name: hive-claim-manager
+    networks:
+      - hive-claim-manager
+    dns: # Optional, add only if the container failed to resolve DNS
+      - 8.8.8.8
+    ports:
+      - "3000:3000"
+      - "5000:5000"
+    volumes:
+      - <path to kubeconfig>:/root/.kube/config
+      - <path to aws credentials>:/root/.aws/credentials
+      - ../development/users.yaml:/users.yaml
+    environment:
+      - HIVE_CLAIM_FLASK_APP_USERS_FILE=/users.yaml
+      - HIVE_CLAIM_FLASK_APP_SECRET_KEY=localdevelopment
+      - HIVE_CLAIM_FLASK_APP_NAMESPACE=<hive namespace>
+      - HIVE_CLAIM_FLASK_APP_DEBUG=true
+      - HIVE_CLAIM_FLASK_APP_RELOAD=true
+      - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
+      - KUBECONFIG=/root/.kube/config
+      - HIVE_CLAIM_MANAGER_SUPERUSER_NAME=admin
+      - DEVELOPMENT=true
+      - HIVE_CLAIM_MANAGER_SQLALCHEMY_ECHO=true # optional; echo database actions to console
+    depends_on:
+      - nginx
+
+  nginx:
+    image: lscr.io/linuxserver/nginx:latest
+    container_name: nginx
+    networks:
+      - hive-claim-manager
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ../development/config:/config
+    ports:
+      - 80:80
+    restart: unless-stopped
+
+networks:
+  hive-claim-manager:
+    external: true

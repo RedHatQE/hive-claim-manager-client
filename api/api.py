@@ -2,8 +2,7 @@ import os
 from typing import Any, Tuple
 from flask import Response, request, send_file
 from flask import jsonify, session
-from models import db, User
-from pyaml_env import parse_config
+from models import User
 from app import app
 from utils import (
     claim_cluster,
@@ -16,17 +15,6 @@ from utils import (
 from app import bcrypt
 
 
-def create_users() -> None:
-    _config = parse_config(os.environ["HIVE_CLAIM_FLASK_APP_USERS_FILE"])
-    password = _config["password"]
-    for user in _config["users"]:
-        app.logger.info(f"Creating user {user}")
-        hashed_password = bcrypt.generate_password_hash(password)
-        new_user = User(name=user, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-
-
 @app.route("/api/healthcheck")
 def healthcheck() -> Tuple[Response, int]:
     return jsonify({"status": "ok"}), 200
@@ -34,7 +22,7 @@ def healthcheck() -> Tuple[Response, int]:
 
 @app.route("/api/@me")
 def get_current_user() -> Tuple[Response, int]:
-    _error = {"error": "Unauthorized", "id": "", "name": ""}
+    _error = {"error": "Unauthorized", "id": "", "admin": False, "name": ""}
     user_id = session.get("user_id")
 
     if not user_id:
@@ -47,7 +35,7 @@ def get_current_user() -> Tuple[Response, int]:
         app.logger.info("no USER")
         return jsonify(_error), 401
 
-    return jsonify({"id": user.id, "name": user.name, "error": ""}), 200
+    return jsonify({"id": user.id, "name": user.name, "admin": user.admin, "error": ""}), 200
 
 
 @app.route("/api/login", methods=["POST"])
@@ -98,17 +86,17 @@ def claim_cluster_endpoint() -> Tuple[Response, int]:
 def delete_claim_endpoint() -> Tuple[Response, int]:
     _claim_name: str = request.args.get("name", "")
     _user: str = request.args.get("user", "")
-    if _user not in _claim_name:
-        return jsonify({"error": "User is not allowed to delete this claim", "name": ""}), 401
+    if _user in _claim_name or _user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
+        claim_cluster_delete(claim_name=_claim_name.strip())
+        return jsonify({"deleted": _claim_name}), 200
 
-    claim_cluster_delete(claim_name=_claim_name.strip())
-    return jsonify({"deleted": _claim_name}), 200
+    return jsonify({"error": "User is not allowed to delete this claim", "name": ""}), 401
 
 
 @app.route("/api/all-user-claims-names", methods=["GET"])
 def all_user_claims_names_endpoint() -> Tuple[Response, int]:
     _user: str = request.args.get("user", "")
-    return jsonify(get_all_user_claims_names(user=_user)), 200
+    return jsonify(get_all_user_claims_names(user=_user, logger=app.logger)), 200
 
 
 @app.route("/api/delete-all-claims", methods=["POST"])
@@ -124,7 +112,6 @@ def download_kubeconfig_endpoint(filename: str) -> Response:
 
 def main() -> None:
     app.logger.info(f"Starting {app.name} app")
-
     app.run(
         port=5000,
         host="0.0.0.0",

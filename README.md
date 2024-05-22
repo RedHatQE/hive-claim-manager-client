@@ -1,4 +1,4 @@
-# React client for [hive-cliam-manager-server](https://github.com/RedHatQE/hive-claim-manager-server)
+# React client for <a href="https://github.com/RedHatQE/hive-claim-manager" target="_blank">Hive Claim Manager</a>
 
 UI for managing Openshift HIVE clusters pools.
 Support:
@@ -8,40 +8,27 @@ Support:
 - Delete claims from pools
 - Get cluster info (console URL, user/password and kubeconfig) from claimed cluster.
 
-## Usage
+### Local Development
 
-### Docker
+Required docker compose version >= 2.22.0
+
+Edit [docker-compose.example.yaml](docker-compose.example.yaml)
+
+Create docker network, if it does not exist:
 
 ```bash
-docker build --build-arg REACT_APP_API_URL="http://localhost:5000/api" -t hive-claim-manager .
-docker run --rm -it -p 3000:3000 -p 5000:5000 hive-claim-manager
+docker network ls
+docker network create hive-claim-manager
 ```
 
-### Docker compose
+Run `docker compose -f .local/docker-compose.yaml up --watch --build`
 
-```yaml
-services:
-  hive-claim-manager:
-    build:
-      context: .
-      args:
-        - REACT_APP_API_URL=http://localhost:5000/api
-        - DEVELOPER_MODE=true
-    container_name: hive-claim-manager
-    dns:
-      - 8.8.8.8 # Opotional, added only if needed
-    ports:
-      - "3000:3000"
-      - "5000:5000"
-    volumes:
-      - </path/to/kubeconfig>:/root/.kube/config
-      - </path/to/credentials>:/root/.aws/credentials
-      - </path/to/users.yaml>:/users.yaml
-    environment:
-      - HIVE_CLAIM_FLASK_APP_USERS_FILE=/users.yaml
-      - HIVE_CLAIM_FLASK_APP_SECRET_KEY=<secret_key for flask>
-      - HIVE_CLAIM_FLASK_APP_NAMESPACE=<hive namespace>
-      - HIVE_CLAIM_FLASK_APP_DEBUG=true
-      - AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
-      - KUBECONFIG=/root/.kube/config
-```
+Open <a href="http://localhost" target="_blank">localhost</a> in browser
+
+The following users configured:
+
+- User: `admin` Password: `admin` # Superuser, can delete other users claims <!--pragma: allowlist secret-->
+- User: `dev` Password: `dev` <!--pragma: allowlist secret-->
+- User: `user` Password: `user` <!--pragma: allowlist secret-->
+
+Node server and Flask server will be automatically reloaded on file changes.

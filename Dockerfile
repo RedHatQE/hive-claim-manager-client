@@ -33,7 +33,10 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip --upgrade \
 
 RUN echo "REACT_APP_API_URL=$REACT_APP_API_URL" > .env
 RUN npm install
-RUN ./node_modules/.bin/env-cmd -f .env npm run build
+RUN if [ -z "$DEVELOPMENT" ]; \
+  then \
+  ./node_modules/.bin/env-cmd -f .env npm run build; \
+  fi
 
 HEALTHCHECK CMD curl --fail http://127.0.0.1:3000 || exit 1
 ENTRYPOINT ["./entrypoint.sh"]

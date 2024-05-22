@@ -1,0 +1,4 @@
+users:
+  - dev:dev
+  - admin:admin
+  - user:user
