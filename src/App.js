@@ -4,9 +4,11 @@ import ClusterCliams from "./ClusterClaims";
 import DeleteAllClaims from "./DeleteAllClaims";
 import httpClient from "./httpClient";
 import Button from "@mui/material/Button";
-import UserAuthentication from "./UserAuthentication";
+import isUserAuthenticated from "./UserAuthentication";
 
-class AppWrapper extends UserAuthentication {
+const user = await isUserAuthenticated();
+
+class AppWrapper extends React.Component {
   async logoutUser() {
     await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
     window.location.href = "/login";
@@ -16,11 +18,11 @@ class AppWrapper extends UserAuthentication {
     return (
       <div>
         <h1 align="center">Hive claim manager</h1>
-        {this.user.error === "Unauthorized" ? (
+        {user.error === "Unauthorized" ? (
           (window.location.href = "/login")
         ) : (
           <div>
-            <h3 align="center">Welcome {this.user.name}</h3>
+            <h3 align="center">Welcome {user.name}</h3>
             <ClusterPools />
             <ClusterCliams />
             <DeleteAllClaims />
