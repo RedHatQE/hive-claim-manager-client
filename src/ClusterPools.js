@@ -13,7 +13,7 @@ import Box from "@mui/material/Box";
 
 import SendIcon from "@mui/icons-material/Send";
 import httpClient from "./httpClient";
-import isUserAuthenticated from "./IsUserAuthenticated";
+import isUserAuthenticated from "./UserAuthentication";
 
 function ClusterPools() {
   const [clusterPools, setClusterPools] = useState([]);
