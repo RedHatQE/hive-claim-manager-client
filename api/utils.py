@@ -8,10 +8,12 @@ from ocp_resources.cluster_claim import ClusterClaim, NamespacedResource
 from ocp_resources.cluster_pool import ClusterPool
 from ocp_resources.cluster_deployment import ClusterDeployment
 from ocp_resources.secret import Secret
-from ocp_utilities.infra import DynamicClient, base64, get_client
+from ocp_utilities.infra import DynamicClient, base64
 import os
 
 import shortuuid
+
+from api.app import ocp_client
 
 HIVE_CLUSTER_NAMESPACE = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
 
@@ -56,11 +58,10 @@ def get_all_claims() -> List[Dict[str, str]]:
         return _res
 
     with ThreadPoolExecutor() as executor:
-        dyn_client = get_client()
         futures = []
         res = []
-        for claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
-            futures.append(executor.submit(_claims, claim, dyn_client))
+        for claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
+            futures.append(executor.submit(_claims, claim, ocp_client))
 
         for future in as_completed(futures):
             res.extend(future.result())
@@ -69,16 +70,16 @@ def get_all_claims() -> List[Dict[str, str]]:
 
 def get_cluster_pools() -> List[Dict[str, str]]:
     res = []
-    dyn_client = get_client()
-    for cp in ClusterPool.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
+    for cp in ClusterPool.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
         _instance: ResourceInstance = cp.instance
         _name = _instance.metadata.name
         _size = _instance.spec.size
         _status = _instance.status
+        _claimed_clusters = len(get_cluster_pool_claims(dyn_client=ocp_client, pool_name=_name))
         _pool = {
             "name": _name,
             "size": _size,
-            "claimed": _size - _status.size if _status else 0,
+            "claimed": _size - _claimed_clusters,
             "available": _status.size if _status else 0,
         }
         res.append(_pool)
@@ -109,14 +110,13 @@ def claim_cluster_delete(claim_name: str) -> None:
         name=claim_name,
         namespace=HIVE_CLUSTER_NAMESPACE,
     )
-    _claim.clean_up()
+    _claim.clean_up(wait=False)
 
 
 def get_all_user_claims_names(user: str, logger: logging.Logger) -> List[str]:
     _user_claims: List[str] = []
-    dyn_client = get_client()
     _claim: Any
-    for _claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
+    for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
         logger.info(f"User: {user} claim {_claim.name}")
         if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
             _user_claims.append(_claim.name)
@@ -127,13 +127,18 @@ def get_all_user_claims_names(user: str, logger: logging.Logger) -> List[str]:
 
 
 def delete_all_claims(user: str) -> Dict[str, List[str]]:
-    dyn_client = get_client()
     deleted_claims = []
-    _claim: Any
-    for _claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
-            _claim.clean_up()
-            deleted_claims.append(_claim.name)
+    futures = []
+
+    with ThreadPoolExecutor() as executor:
+        for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
+            if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
+                futures.append(executor.submit(_claim.clean_up, False))
+                deleted_claims.append(_claim.name)
+
+    for _ in as_completed(futures):
+        # clean_up does not return
+        pass
 
     return {"deleted_claims": deleted_claims}
 
@@ -184,3 +189,13 @@ def get_claimed_cluster_kubeconfig(claim_name: str, dyn_client: DynamicClient) -
         fd.write(base64.b64decode(_secret.instance.data.kubeconfig).decode())
 
     return {"kubeconfig": f"/kubeconfig/{_kubeconfig_file_name}"}
+
+
+def get_cluster_pool_claims(pool_name: str, dyn_client: DynamicClient) -> List[str]:
+    _claims: List[str] = []
+
+    for _claim in ClusterClaim.get(dyn_client=dyn_client, namespace=HIVE_CLUSTER_NAMESPACE):
+        if _claim.instance.spec.clusterPoolRef.name == pool_name:
+            _claims.append(_claim.name)
+
+    return _claims
