@@ -8,7 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
-import isUserAuthenticated from "./IsUserAuthenticated";
+import isUserAuthenticated from "./UserAuthentication";
 
 function DeleteAllClaims() {
   const [loading, setLoading] = useState(false);

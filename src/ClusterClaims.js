@@ -19,7 +19,7 @@ import Typography from "@mui/material/Typography";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import httpClient from "./httpClient";
-import isUserAuthenticated from "./IsUserAuthenticated";
+import isUserAuthenticated from "./UserAuthentication";
 
 function Row(props) {
   const { row: claim } = props;

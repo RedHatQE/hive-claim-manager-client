@@ -1,17 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import ClusterPools from "./ClusterPools";
 import ClusterCliams from "./ClusterClaims";
 import DeleteAllClaims from "./DeleteAllClaims";
 import httpClient from "./httpClient";
 import Button from "@mui/material/Button";
-import isUserAuthenticated from "./IsUserAuthenticated";
+import UserAuthentication from "./UserAuthentication";
 
-class AppWrapper extends React.Component {
-  constructor() {
-    super();
-    this.user = isUserAuthenticated();
-  }
-
+class AppWrapper extends UserAuthentication {
   async logoutUser() {
     await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
     window.location.href = "/login";
