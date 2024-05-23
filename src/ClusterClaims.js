@@ -24,7 +24,27 @@ import isUserAuthenticated from "./UserAuthentication";
 function Row(props) {
   const { row: claim } = props;
   const { user } = props;
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleOnClick = () => {
+    if (claim.name.includes(user.name) || user.admin) {
+      if (
+        window.confirm(
+          "\n\nAre you sure you want to delete claim " + claim.name + "?",
+        )
+      ) {
+        httpClient.post(
+          process.env.REACT_APP_API_URL +
+            "/delete-claim?name=" +
+            claim.name +
+            "&user=" +
+            user.name,
+        );
+      }
+    } else {
+      alert("You can only delete your own claims");
+    }
+  };
 
   return (
     <React.Fragment>
@@ -53,28 +73,7 @@ function Row(props) {
           <Button
             color="error"
             startIcon={<DeleteIcon />}
-            onClick={() => {
-              if (claim.name.includes(user.name) || user.admin) {
-                if (
-                  window.confirm(
-                    "\n\nAre you sure you want to delete claim " +
-                      claim.name +
-                      "?",
-                  )
-                ) {
-                  httpClient.post(
-                    process.env.REACT_APP_API_URL +
-                      "/delete-claim?name=" +
-                      claim.name +
-                      "&user=" +
-                      user.name,
-                  );
-                  window.location.reload();
-                }
-              } else {
-                alert("You can only delete your own claims");
-              }
-            }}
+            onClick={handleOnClick}
           >
             {" "}
             Delete{" "}
@@ -173,11 +172,6 @@ function ClusterClaims() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    getUser();
-    getClusterClaims();
-  }, []);
-
   return (
     <div>
       <h3>Active Claims</h3>
@@ -193,7 +187,7 @@ function ClusterClaims() {
                 <TableRow>
                   <TableCell></TableCell>
                   <TableCell>Name</TableCell>
-                  <TableCell align="center">Poll</TableCell>
+                  <TableCell align="center">Pool</TableCell>
                   <TableCell align="center">Namespace</TableCell>
                 </TableRow>
               </TableHead>

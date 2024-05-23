@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import isUserAuthenticated from "./UserAuthentication";
 
 const user = await isUserAuthenticated();
+const { waitingWorker, showReload, reloadPage } = useServiceWorker();
 
 class AppWrapper extends React.Component {
   async logoutUser() {
