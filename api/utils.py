@@ -169,7 +169,9 @@ def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:
         namespace=_cluster_deployment.namespace,
         client=ocp_client,
     )
-    return {"creds": f"Username {_secret.instance.data.username}:Password {_secret.instance.data.password}"}
+    return {
+        "creds": f"Username {base64.b64decode(_secret.instance.data.username).decode()}:Password {base64.b64decode(_secret.instance.data.password).decode()}"
+    }
 
 
 def get_claimed_cluster_kubeconfig(claim_name: str) -> Dict[str, str]:
