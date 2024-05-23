@@ -11,7 +11,7 @@ const user = await isUserAuthenticated();
 class AppWrapper extends React.Component {
   async logoutUser() {
     await httpClient.post(process.env.REACT_APP_API_URL + "/logout");
-    window.location.href = "/login";
+    window.location.replace("/login");
   }
 
   render() {
@@ -19,7 +19,7 @@ class AppWrapper extends React.Component {
       <div>
         <h1 align="center">Hive claim manager</h1>
         {user.error === "Unauthorized" ? (
-          (window.location.href = "/login")
+          window.location.replace("/login")
         ) : (
           <div>
             <h3 align="center">Welcome {user.name}</h3>
