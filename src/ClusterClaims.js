@@ -26,7 +26,7 @@ function Row(props) {
   const { user } = props;
   const [open, setOpen] = useState(false);
 
-  const handleOnClick = () => {
+  const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
       if (
         window.confirm(
@@ -46,6 +46,14 @@ function Row(props) {
     }
   };
 
+  const handleOpenClusterInfoOnClick = () => {
+    if (claim.name.includes(user.name) || user.admin) {
+      setOpen(!open);
+    } else {
+      alert("You can only view your own claims");
+    }
+  };
+
   return (
     <React.Fragment>
       <TableRow
@@ -58,7 +66,7 @@ function Row(props) {
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={handleOpenClusterInfoOnClick}
           >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
@@ -73,7 +81,7 @@ function Row(props) {
           <Button
             color="error"
             startIcon={<DeleteIcon />}
-            onClick={handleOnClick}
+            onClick={handleDeleteOnClick}
           >
             {" "}
             Delete{" "}
