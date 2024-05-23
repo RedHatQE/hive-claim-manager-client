@@ -30,24 +30,39 @@ function ClusterPools() {
         user.name,
     );
     setLoading(false);
-    window.location.reload();
   };
   const getUser = async () => {
     const user = await isUserAuthenticated();
     setUser(user);
   };
 
-  const getClusterPools = async () => {
-    setLoading(true);
-    const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-pools");
-    const data = await res.json();
-    setClusterPools(data);
-    setLoading(false);
+  const getClusterPools = async (loading) => {
+    try {
+      if (loading) {
+        setLoading(true);
+      }
+      console.log("fetching cluster pools");
+      const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-pools");
+      const data = await res.json();
+      setClusterPools(data);
+      if (loading) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error(error);
+      if (loading) {
+        setLoading(false);
+      }
+    }
   };
 
   useEffect(() => {
-    getClusterPools();
+    getClusterPools(true);
     getUser();
+    const interval = setInterval(() => {
+      getClusterPools();
+    }, 30 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
