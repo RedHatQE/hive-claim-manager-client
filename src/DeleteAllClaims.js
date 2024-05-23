@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
@@ -10,9 +10,10 @@ import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
 
+const user = await isUserAuthenticated();
+
 function DeleteAllClaims() {
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
 
   const onClickHandler = async () => {
     setLoading(true);
@@ -37,18 +38,8 @@ function DeleteAllClaims() {
       await httpClient.post(
         process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
       );
-      window.location.reload();
     }
   };
-
-  const getUser = async () => {
-    const user = await isUserAuthenticated();
-    setUser(user);
-  };
-
-  useEffect(() => {
-    getUser();
-  }, []);
 
   return (
     <div>
@@ -66,7 +57,7 @@ function DeleteAllClaims() {
                 onClick={onClickHandler}
               >
                 {" "}
-                Delete All Claims{" "}
+                Delete All {user.name} Claims{" "}
               </Button>
             </Stack>
           </FormControl>
