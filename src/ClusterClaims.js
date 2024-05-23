@@ -163,14 +163,37 @@ function ClusterClaims() {
     setUser(user);
   };
 
-  const getClusterClaims = async () => {
-    setLoading(true);
-    await fetch(process.env.REACT_APP_API_URL + "/cluster-claims")
-      .then((res) => res.json())
-      .then((res) => setClusterClaims(res))
-      .catch((err) => console.log(err));
-    setLoading(false);
+  const getClusterClaims = async (loading) => {
+    await fetch(process.env.REACT_APP_API_URL + "/cluster-claims");
+    try {
+      if (loading) {
+        setLoading(true);
+      }
+      console.log("fetching cluster claims");
+      const res = await fetch(
+        process.env.REACT_APP_API_URL + "/cluster-claims",
+      );
+      const data = await res.json();
+      setClusterClaims(data);
+      if (loading) {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error(error);
+      if (loading) {
+        setLoading(false);
+      }
+    }
   };
+
+  useEffect(() => {
+    getClusterClaims(true);
+    getUser();
+    const interval = setInterval(() => {
+      getClusterClaims();
+    }, 30 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div>
@@ -191,11 +214,13 @@ function ClusterClaims() {
                   <TableCell align="center">Namespace</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
-                {clusterClaims.map((claim) => (
-                  <Row key={claim.name} row={claim} user={user} />
-                ))}
+                {clusterClaims
+                  .map((claim) => claim)
+                  .sort((a, b) => (a.name > b.name ? 1 : -1))
+                  .map((claim) => (
+                    <Row key={claim.name} row={claim} user={user} />
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>
