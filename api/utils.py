@@ -193,7 +193,6 @@ def get_num_cluster_pool_claims(pool_name: str) -> int:
     num_claims = 0
 
     for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        app.logger.info(f"{pool_name}   {_claim.name}")
         if _claim.instance.spec.clusterPoolName == pool_name:
             num_claims += 1
 
