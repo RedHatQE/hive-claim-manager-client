@@ -2,12 +2,10 @@ import os
 from typing import Any, Tuple
 from flask import Response, request, send_file
 from flask import jsonify, session
-from ocp_resources.cluster_claim import ClusterClaim
 
 from models import User
 from app import app
 from utils import (
-    HIVE_CLUSTER_NAMESPACE,
     claim_cluster,
     claim_cluster_delete,
     delete_all_claims,
@@ -111,16 +109,6 @@ def delete_all_claims_endpoint() -> Tuple[Response, int]:
 @app.route("/api/kubeconfig/<filename>", methods=["GET"])
 def download_kubeconfig_endpoint(filename: str) -> Response:
     return send_file(f"/tmp/{filename}", download_name=filename, as_attachment=True)  # type: ignore[call-arg]
-
-
-@app.route("/api/getclaim", methods=["GET"])
-def get_claim_endpoint() -> Tuple[Response, int]:
-    _claim_name: str = request.args.get("name", "")
-    _claim: Any = ClusterClaim(
-        name=_claim_name,
-        namespace=HIVE_CLUSTER_NAMESPACE,
-    )
-    return jsonify({"claim": _claim.name if _claim.exists else ""}), 200
 
 
 def main() -> None:
