@@ -1,6 +1,6 @@
 import React from "react";
 import ClusterPools from "./ClusterPools";
-import ClusterCliams from "./ClusterClaims";
+import ClusterClaims from "./ClusterClaims";
 import DeleteAllClaims from "./DeleteAllClaims";
 import httpClient from "./httpClient";
 import Button from "@mui/material/Button";
@@ -24,7 +24,7 @@ class AppWrapper extends React.Component {
           <div>
             <h3 align="center">Welcome {user.name}</h3>
             <ClusterPools />
-            <ClusterCliams />
+            <ClusterClaims />
             <DeleteAllClaims />
             <br />
             <Button
