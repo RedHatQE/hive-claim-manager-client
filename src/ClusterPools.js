@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+import Button from "@mui/joy/Button";
+
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,26 +9,27 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
 import SendIcon from "@mui/icons-material/Send";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
+import Log from "./Log";
+import eventBus from "./EventBus";
 
 function ClusterPools() {
   const [clusterPools, setClusterPools] = useState([]);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
-  const [claimButtonText, setClaimButtonText] = useState("Claim");
+  const [claimStatus, setClaimStatus] = useState("CLAIM");
 
   const onClickHandler = async (pool) => {
-    if (claimButtonText === "Claiming") {
+    if (claimStatus === "CLAIMING") {
       alert("Cluster claiming in progress");
       return;
     }
-    setClaimButtonText("Claiming");
+    setClaimStatus("CLAIMING");
     await httpClient.post(
       process.env.REACT_APP_API_URL +
         "/claim-cluster?name=" +
@@ -34,7 +37,10 @@ function ClusterPools() {
         "&user=" +
         user.name,
     );
-    setClaimButtonText("Claim");
+    setClaimStatus("CLAIM");
+    eventBus.dispatch("claimDone", {
+      message: pool.name,
+    });
   };
   const getUser = async () => {
     const user = await isUserAuthenticated();
@@ -46,7 +52,8 @@ function ClusterPools() {
       if (loading) {
         setLoading(true);
       }
-      console.log("fetching cluster pools");
+      Log("fetching cluster pools");
+
       const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-pools");
       const data = await res.json();
       setClusterPools(data);
@@ -110,10 +117,12 @@ function ClusterPools() {
                       <TableCell align="center">{pool.available}</TableCell>
                       <TableCell align="center">
                         <Button
+                          variant="plain"
+                          loading={claimStatus === "CLAIMING"}
                           endIcon={<SendIcon />}
                           onClick={onClickHandler.bind(this, pool)}
                         >
-                          {claimButtonText}
+                          {claimStatus}
                         </Button>
                       </TableCell>
                     </TableRow>

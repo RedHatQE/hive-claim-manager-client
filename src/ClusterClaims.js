@@ -7,8 +7,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
-import DeleteIcon from "@mui/icons-material/Delete";
+import Button from "@mui/joy/Button";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -21,18 +20,19 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
 import eventBus from "./EventBus";
+import Log from "./Log";
 
 function Row(props) {
   const { row: claim } = props;
   const { user } = props;
   const [open, setOpen] = useState(false);
-  const [deleteButtonText, setDeleteButtonText] = useState("Delete");
+  const [deleteClaimStatus, setDeleteClaimStatus] = useState("Delete");
   const [deletedClaims, setDeletedClaims] = useState([]);
 
   const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
       if (
-        deleteButtonText === "Deleting" ||
+        deleteClaimStatus === "Deleting" ||
         deletedClaims.includes(claim.name)
       ) {
         alert("Claim already marked for deletion");
@@ -50,7 +50,7 @@ function Row(props) {
             "&user=" +
             user.name,
         );
-        setDeleteButtonText("Deleting");
+        setDeleteClaimStatus("Deleting");
       }
     } else {
       alert("You can only delete your own claims");
@@ -65,19 +65,25 @@ function Row(props) {
     }
   };
 
-  const getDeletedClaims = async () => {
+  const getDeletedClaimsFromStorage = () => {
+    const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
+    if (deletedClaimsFromStorage) {
+      const deletedClaimsFromStorageArr = deletedClaimsFromStorage.split(",");
+      return deletedClaimsFromStorageArr.map((deleteClaim) => deleteClaim);
+    }
+  };
+  const getDeletedClaimsEvent = async () => {
     eventBus.on("deletedClaims", (_) => {
-      const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
-      if (deletedClaimsFromStorage) {
-        const deletedClaimsFromStorageArr = deletedClaimsFromStorage.split(",");
-        setDeletedClaims(
-          deletedClaimsFromStorageArr.map((deleteClaim) => deleteClaim),
-        );
-      }
+      setDeletedClaims(getDeletedClaimsFromStorage());
     });
   };
 
+  const getDeletedClaims = async () => {
+    setDeletedClaims(getDeletedClaimsFromStorage());
+  };
+
   useEffect(() => {
+    getDeletedClaimsEvent();
     getDeletedClaims();
   }, []);
 
@@ -106,16 +112,18 @@ function Row(props) {
 
         <TableCell align="center">
           <Button
-            color="error"
-            startIcon={<DeleteIcon />}
+            variant="plain"
+            loading={
+              deletedClaims
+                .map((deletedClaim) => deletedClaim)
+                .includes(claim.name) || deleteClaimStatus === "Deleting"
+                ? true
+                : false
+            }
+            color="danger"
             onClick={handleDeleteOnClick}
           >
-            {" "}
-            {deletedClaims
-              .map((deletedClaim) => deletedClaim)
-              .includes(claim.name)
-              ? "Deleting"
-              : deleteButtonText}{" "}
+            DELETE
           </Button>
         </TableCell>
       </TableRow>
@@ -207,7 +215,8 @@ function ClusterClaims() {
       if (loading) {
         setLoading(true);
       }
-      console.log("fetching cluster claims");
+      Log("fetching cluster claims");
+
       const res = await fetch(
         process.env.REACT_APP_API_URL + "/cluster-claims",
       );
@@ -224,7 +233,14 @@ function ClusterClaims() {
     }
   };
 
+  const processClaimDone = async () => {
+    eventBus.on("claimDone", (_) => {
+      getClusterClaims();
+    });
+  };
+
   useEffect(() => {
+    processClaimDone();
     getClusterClaims(true);
     getUser();
     const interval = setInterval(() => {

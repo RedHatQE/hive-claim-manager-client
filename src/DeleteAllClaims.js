@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 
 import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
-import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
+import Button from "@mui/joy/Button";
 
 import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
@@ -67,13 +66,8 @@ function DeleteAllClaims() {
       <Box sx={{ minWidth: 120 }}>
         <FormControl fullWidth>
           <Stack direction="row" spacing={2}>
-            <Button
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={onClickHandler}
-            >
-              {" "}
-              {"Delete All " + userText + " Claims"}{" "}
+            <Button color="danger" variant="plain" onClick={onClickHandler}>
+              {"Delete All " + userText + " Claims"}
             </Button>
           </Stack>
         </FormControl>

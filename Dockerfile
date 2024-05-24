@@ -34,6 +34,7 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip --upgrade \
 RUN echo "REACT_APP_API_URL=$REACT_APP_API_URL" > .env
 RUN npm install
 RUN if [ -z "$DEVELOPMENT" ]; \
+
   then \
   ./node_modules/.bin/env-cmd -f .env npm run build; \
   fi
