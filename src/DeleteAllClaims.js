@@ -13,33 +13,29 @@ import isUserAuthenticated from "./UserAuthentication";
 const user = await isUserAuthenticated();
 
 function DeleteAllClaims() {
-  const [loading, setLoading] = useState(false);
-  const [deleteAllText, setDeleteAllText] = useState("Delete All Claims");
+  const [userText, setUserText] = useState(user.name);
 
-  const getDeleteAllText = async () => {
-    if (!user.admin) {
-      setDeleteAllText("Delete All " + user.name + " Claims");
+  const getUserText = async () => {
+    if (user.admin) {
+      setUserText("");
     }
   };
 
   const onClickHandler = async () => {
-    setLoading(true);
     const res = await fetch(
       process.env.REACT_APP_API_URL +
         "/all-user-claims-names?user=" +
         user.name,
     );
     const data = await res.json();
-    setLoading(false);
-    console.log(data);
     if (data.length === 0) {
-      alert("No claims found for user: " + user.name);
-    } else if (
+      alert("No claims found for user: " + userText);
+      return;
+    }
+    if (
       window.confirm(
         data.map((claim) => claim).join("\n") +
-          "\n\nAre you sure you want to delete all claims for user " +
-          user.name +
-          "?",
+          "\n\nAre you sure you want to delete the following claims ?",
       )
     ) {
       await httpClient.post(
@@ -49,31 +45,25 @@ function DeleteAllClaims() {
   };
 
   useEffect(() => {
-    getDeleteAllText();
+    getUserText();
   }, []);
 
   return (
     <div>
-      {loading ? (
-        <Box sx={{ display: "flex" }}>
-          <CircularProgress size={30} />
-        </Box>
-      ) : (
-        <Box sx={{ minWidth: 120 }}>
-          <FormControl fullWidth>
-            <Stack direction="row" spacing={2}>
-              <Button
-                color="error"
-                startIcon={<DeleteIcon />}
-                onClick={onClickHandler}
-              >
-                {" "}
-                {deleteAllText}{" "}
-              </Button>
-            </Stack>
-          </FormControl>
-        </Box>
-      )}
+      <Box sx={{ minWidth: 120 }}>
+        <FormControl fullWidth>
+          <Stack direction="row" spacing={2}>
+            <Button
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={onClickHandler}
+            >
+              {" "}
+              {"Delete All " + userText + " Claims"}{" "}
+            </Button>
+          </Stack>
+        </FormControl>
+      </Box>
     </div>
   );
 }

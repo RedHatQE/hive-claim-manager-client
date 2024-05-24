@@ -19,9 +19,14 @@ function ClusterPools() {
   const [clusterPools, setClusterPools] = useState([]);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [claimButtonText, setClaimButtonText] = useState("Claim");
 
   const onClickHandler = async (pool) => {
-    setLoading(true);
+    if (claimButtonText === "Claiming") {
+      alert("Cluster claiming in progress");
+      return;
+    }
+    setClaimButtonText("Claiming");
     await httpClient.post(
       process.env.REACT_APP_API_URL +
         "/claim-cluster?name=" +
@@ -29,7 +34,7 @@ function ClusterPools() {
         "&user=" +
         user.name,
     );
-    setLoading(false);
+    setClaimButtonText("Claim");
   };
   const getUser = async () => {
     const user = await isUserAuthenticated();
@@ -108,7 +113,7 @@ function ClusterPools() {
                           endIcon={<SendIcon />}
                           onClick={onClickHandler.bind(this, pool)}
                         >
-                          Claim
+                          {claimButtonText}
                         </Button>
                       </TableCell>
                     </TableRow>
