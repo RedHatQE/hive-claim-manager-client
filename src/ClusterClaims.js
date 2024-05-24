@@ -25,21 +25,27 @@ function Row(props) {
   const { row: claim } = props;
   const { user } = props;
   const [open, setOpen] = useState(false);
+  const [deleteButtonText, setDeleteButtonText] = useState("Delete");
 
   const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
-      if (
-        window.confirm(
-          "\n\nAre you sure you want to delete claim " + claim.name + "?",
-        )
-      ) {
-        httpClient.post(
-          process.env.REACT_APP_API_URL +
-            "/delete-claim?name=" +
-            claim.name +
-            "&user=" +
-            user.name,
-        );
+      if (deleteButtonText === "Mark for deletion") {
+        alert("Claim already marked for deletion");
+      } else {
+        if (
+          window.confirm(
+            "\n\nAre you sure you want to delete claim " + claim.name + "?",
+          )
+        ) {
+          httpClient.post(
+            process.env.REACT_APP_API_URL +
+              "/delete-claim?name=" +
+              claim.name +
+              "&user=" +
+              user.name,
+          );
+          setDeleteButtonText("Mark for deletion");
+        }
       }
     } else {
       alert("You can only delete your own claims");
@@ -84,7 +90,7 @@ function Row(props) {
             onClick={handleDeleteOnClick}
           >
             {" "}
-            Delete{" "}
+            {deleteButtonText}{" "}
           </Button>
         </TableCell>
       </TableRow>

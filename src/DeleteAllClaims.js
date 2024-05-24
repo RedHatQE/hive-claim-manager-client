@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
@@ -14,6 +14,13 @@ const user = await isUserAuthenticated();
 
 function DeleteAllClaims() {
   const [loading, setLoading] = useState(false);
+  const [deleteAllText, setDeleteAllText] = useState("Delete All Claims");
+
+  const getDeleteAllText = async () => {
+    if (!user.admin) {
+      setDeleteAllText("Delete All " + user.name + " Claims");
+    }
+  };
 
   const onClickHandler = async () => {
     setLoading(true);
@@ -41,6 +48,10 @@ function DeleteAllClaims() {
     }
   };
 
+  useEffect(() => {
+    getDeleteAllText();
+  }, []);
+
   return (
     <div>
       {loading ? (
@@ -57,7 +68,7 @@ function DeleteAllClaims() {
                 onClick={onClickHandler}
               >
                 {" "}
-                Delete All {user.name} Claims{" "}
+                {deleteAllText}{" "}
               </Button>
             </Stack>
           </FormControl>
