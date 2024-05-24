@@ -31,7 +31,10 @@ function Row(props) {
 
   const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
-      if (deleteButtonText === "Marked for deletion") {
+      if (
+        deleteButtonText === "Deleting" ||
+        deletedClaims.includes(claim.name)
+      ) {
         alert("Claim already marked for deletion");
         return;
       }
@@ -47,7 +50,7 @@ function Row(props) {
             "&user=" +
             user.name,
         );
-        setDeleteButtonText("Marked for deletion");
+        setDeleteButtonText("Deleting");
       }
     } else {
       alert("You can only delete your own claims");
@@ -65,6 +68,7 @@ function Row(props) {
   const getDeletedClaims = async () => {
     eventBus.on("deletedClaims", (data) => {
       setDeletedClaims(data.message);
+      console.log(deletedClaims);
     });
   };
 
@@ -105,7 +109,7 @@ function Row(props) {
             {deletedClaims
               .map((deletedClaim) => deletedClaim)
               .includes(claim.name)
-              ? "Marked for deletion"
+              ? "Deleting"
               : deleteButtonText}{" "}
           </Button>
         </TableCell>

@@ -44,6 +44,10 @@ function DeleteAllClaims() {
       eventBus.dispatch("deletedClaims", {
         message: data.map((claim) => claim),
       });
+      sessionStorage.setItem(
+        "deletedClaims",
+        data.map((claim) => claim),
+      );
     }
   };
 
