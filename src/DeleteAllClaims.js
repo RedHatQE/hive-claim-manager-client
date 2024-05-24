@@ -67,7 +67,7 @@ function DeleteAllClaims() {
         <FormControl fullWidth>
           <Stack direction="row" spacing={2}>
             <Button color="danger" variant="plain" onClick={onClickHandler}>
-              {"Delete All " + userText + " Claims"}
+              {"DELETE ALL " + userText.toUpperCase() + " CLAIMS"}
             </Button>
           </Stack>
         </FormControl>

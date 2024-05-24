@@ -11,7 +11,6 @@ import Button from "@mui/joy/Button";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import DownloadIcon from "@mui/icons-material/Download";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
@@ -58,6 +57,8 @@ function Row(props) {
   };
 
   const handleOpenClusterInfoOnClick = () => {
+    Log(claim.info);
+    Log(process.env.REACT_APP_API_URL + claim.info.kubeconfig);
     if (claim.name.includes(user.name) || user.admin) {
       setOpen(!open);
     } else {
@@ -164,7 +165,7 @@ function Row(props) {
                       </TableCell>
                       <TableCell align="center">
                         <Button
-                          endIcon={<DownloadIcon />}
+                          variant="plain"
                           href={process.env.REACT_APP_API_URL + info.kubeconfig}
                         >
                           Kubeconfig

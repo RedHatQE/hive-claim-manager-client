@@ -12,7 +12,6 @@ import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
-import SendIcon from "@mui/icons-material/Send";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
 import Log from "./Log";
@@ -119,7 +118,6 @@ function ClusterPools() {
                         <Button
                           variant="plain"
                           loading={claimStatus === "CLAIMING"}
-                          endIcon={<SendIcon />}
                           onClick={onClickHandler.bind(this, pool)}
                         >
                           {claimStatus}
