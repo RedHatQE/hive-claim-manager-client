@@ -70,8 +70,9 @@ def get_all_claims() -> List[Dict[str, str]]:
 
 def get_cluster_pools() -> List[Dict[str, str]]:
     res = []
-    for cp in ClusterPool.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        _instance: ResourceInstance = cp.instance
+
+    def _get_pool_info(pool: NamespacedResource) -> Dict[str, str]:
+        _instance = pool.instance
         _name = _instance.metadata.name
         _size = _instance.spec.size
         _status = _instance.status
@@ -81,7 +82,15 @@ def get_cluster_pools() -> List[Dict[str, str]]:
             "claimed": get_num_cluster_pool_claims(pool_name=_name),
             "available": _status.size if _status else 0,
         }
-        res.append(_pool)
+        return _pool
+
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for cp in ClusterPool.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
+            futures.append(executor.submit(_get_pool_info, cp))
+
+        for future in as_completed(futures):
+            res.append(future.result())
 
     return res
 
