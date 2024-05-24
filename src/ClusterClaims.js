@@ -19,7 +19,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
 import eventBus from "./EventBus";
-import Log from "./Log";
+import consoleLog from "./ConsoleLog";
 
 function Row(props) {
   const { row: claim } = props;
@@ -57,8 +57,6 @@ function Row(props) {
   };
 
   const handleOpenClusterInfoOnClick = () => {
-    Log(claim.info);
-    Log(process.env.REACT_APP_API_URL + claim.info.kubeconfig);
     if (claim.name.includes(user.name) || user.admin) {
       setOpen(!open);
     } else {
@@ -216,7 +214,7 @@ function ClusterClaims() {
       if (loading) {
         setLoading(true);
       }
-      Log("fetching cluster claims");
+      consoleLog("fetching cluster claims");
 
       const res = await fetch(
         process.env.REACT_APP_API_URL + "/cluster-claims",

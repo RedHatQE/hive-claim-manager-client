@@ -14,7 +14,7 @@ import Box from "@mui/material/Box";
 
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
-import Log from "./Log";
+import consoleLog from "./ConsoleLog";
 import eventBus from "./EventBus";
 
 function ClusterPools() {
@@ -51,7 +51,7 @@ function ClusterPools() {
       if (loading) {
         setLoading(true);
       }
-      Log("fetching cluster pools");
+      consoleLog("fetching cluster pools");
 
       const res = await fetch(process.env.REACT_APP_API_URL + "/cluster-pools");
       const data = await res.json();
