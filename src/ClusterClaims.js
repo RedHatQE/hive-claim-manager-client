@@ -29,7 +29,7 @@ function Row(props) {
 
   const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
-      if (deleteButtonText === "Mark for deletion") {
+      if (deleteButtonText === "Marked for deletion") {
         alert("Claim already marked for deletion");
       } else {
         if (
