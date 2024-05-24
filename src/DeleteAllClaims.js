@@ -41,13 +41,20 @@ function DeleteAllClaims() {
       await httpClient.post(
         process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
       );
+
+      const dataMap = data.map((claim) => claim);
+
+      const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
+      const dataAndStorage = deletedClaimsFromStorage + "," + dataMap;
+
+      if (deletedClaimsFromStorage) {
+        sessionStorage.setItem("deletedClaims", dataAndStorage);
+      } else {
+        sessionStorage.setItem("deletedClaims", dataMap);
+      }
       eventBus.dispatch("deletedClaims", {
-        message: data.map((claim) => claim),
+        message: dataMap,
       });
-      sessionStorage.setItem(
-        "deletedClaims",
-        data.map((claim) => claim),
-      );
     }
   };
 

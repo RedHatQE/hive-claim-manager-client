@@ -66,9 +66,14 @@ function Row(props) {
   };
 
   const getDeletedClaims = async () => {
-    eventBus.on("deletedClaims", (data) => {
-      setDeletedClaims(data.message);
-      console.log(deletedClaims);
+    eventBus.on("deletedClaims", (_) => {
+      const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
+      if (deletedClaimsFromStorage) {
+        const deletedClaimsFromStorageArr = deletedClaimsFromStorage.split(",");
+        setDeletedClaims(
+          deletedClaimsFromStorageArr.map((deleteClaim) => deleteClaim),
+        );
+      }
     });
   };
 
