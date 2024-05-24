@@ -147,13 +147,15 @@ function Row(props) {
                   {claim.info.map((info) => (
                     <TableRow key={info.name}>
                       <TableCell>
-                        <a
+                        <Button
+                          variant="plain"
+                          component="a"
                           href={info.console}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Console
-                        </a>
+                          CONSOLE
+                        </Button>
                       </TableCell>
                       <TableCell align="center">
                         <p>
@@ -164,9 +166,10 @@ function Row(props) {
                       <TableCell align="center">
                         <Button
                           variant="plain"
+                          component="a"
                           href={process.env.REACT_APP_API_URL + info.kubeconfig}
                         >
-                          Kubeconfig
+                          KUBECONFIG
                         </Button>
                       </TableCell>
                     </TableRow>
