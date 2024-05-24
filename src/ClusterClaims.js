@@ -20,12 +20,14 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
+import eventBus from "./EventBus";
 
 function Row(props) {
   const { row: claim } = props;
   const { user } = props;
   const [open, setOpen] = useState(false);
   const [deleteButtonText, setDeleteButtonText] = useState("Delete");
+  const [deletedClaims, setDeletedClaims] = useState([]);
 
   const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
@@ -60,6 +62,16 @@ function Row(props) {
     }
   };
 
+  const getDeletedClaims = async () => {
+    eventBus.on("deletedClaims", (data) => {
+      setDeletedClaims(data.message);
+    });
+  };
+
+  useEffect(() => {
+    getDeletedClaims();
+  }, []);
+
   return (
     <React.Fragment>
       <TableRow
@@ -90,7 +102,11 @@ function Row(props) {
             onClick={handleDeleteOnClick}
           >
             {" "}
-            {deleteButtonText}{" "}
+            {deletedClaims
+              .map((deletedClaim) => deletedClaim)
+              .includes(claim.name)
+              ? "Marked for deletion"
+              : deleteButtonText}{" "}
           </Button>
         </TableCell>
       </TableRow>

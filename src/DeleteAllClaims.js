@@ -4,11 +4,11 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
 
 import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
+import eventBus from "./EventBus";
 
 const user = await isUserAuthenticated();
 
@@ -41,6 +41,9 @@ function DeleteAllClaims() {
       await httpClient.post(
         process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
       );
+      eventBus.dispatch("deletedClaims", {
+        message: data.map((claim) => claim),
+      });
     }
   };
 
