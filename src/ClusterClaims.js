@@ -70,6 +70,7 @@ function Row(props) {
       const deletedClaimsFromStorageArr = deletedClaimsFromStorage.split(",");
       return deletedClaimsFromStorageArr.map((deleteClaim) => deleteClaim);
     }
+    return [];
   };
   const getDeletedClaimsEvent = async () => {
     eventBus.on("deletedClaims", (_) => {
