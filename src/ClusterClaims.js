@@ -75,7 +75,6 @@ function Row(props) {
   };
 
   useEffect(() => {
-    // getDeletedClaimsEvent();
     getDeletedClaims();
     const interval = setInterval(() => {
       getDeletedClaims();
