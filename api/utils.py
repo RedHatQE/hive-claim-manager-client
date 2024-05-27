@@ -76,9 +76,6 @@ def get_all_claims() -> List[Dict[str, str]]:
         if _delete_in_progress not in _exists_claim:
             CLAIMS_DELETE_IN_PROGRESS.remove(_delete_in_progress)
 
-    # global CLAIMS_DELETE_IN_PROGRESS
-    # CLAIMS_DELETE_IN_PROGRESS = list(set(CLAIMS_DELETE_IN_PROGRESS).intersection(set(_existing_claims)))
-    # app.logger.info(f"Claims in progress: {CLAIMS_DELETE_IN_PROGRESS}")
     return res
 
 
