@@ -213,18 +213,16 @@ function ClusterClaims() {
 
   const processDeletedAllClaimsDone = async () => {
     eventBus.on("deleteAllDone", (_) => {
-      getDeletedClaims("From deleteAll");
+      getDeletedClaims();
     });
   };
 
-  const getDeletedClaims = async (f) => {
-    consoleLog("fetching deleted claims from");
+  const getDeletedClaims = async () => {
     try {
       const res = await fetch(
         process.env.REACT_APP_API_URL + "/claims-delete-in-progress-endpoint",
       );
       const data = await res.json();
-      console.log(data.join(",") + " From " + f);
       setDeletedClaims(data);
     } catch (error) {
       console.error(error);
@@ -232,7 +230,7 @@ function ClusterClaims() {
   };
 
   useEffect(() => {
-    getDeletedClaims("useEffect");
+    getDeletedClaims();
     processClaimDone();
     processDeletedAllClaimsDone();
     getClusterClaims(true);
@@ -241,7 +239,7 @@ function ClusterClaims() {
       getClusterClaims();
     }, 30 * 1000);
     const deletedClaimsInterval = setInterval(() => {
-      getDeletedClaims("Interval");
+      getDeletedClaims();
     }, 1 * 1000);
     return () => clearInterval(clusterClaimsInterval, deletedClaimsInterval);
   }, []);

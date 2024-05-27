@@ -12,7 +12,11 @@ import os
 
 import shortuuid
 
-from claims_delete_in_progress import CLAIMS_DELETE_IN_PROGRESS
+from claims_delete_in_progress import (
+    add_claim_to_deleted_claims,
+    get_deleted_claims,
+    remove_claim_from_deleted_claims,
+)
 from app import app, ocp_client
 
 
@@ -71,12 +75,13 @@ def get_all_claims() -> List[Dict[str, str]]:
             if future.result():
                 res.extend(future.result())
 
-    _exists_claim = [_cl["name"] for _cl in res]
-    for _delete_in_progress in CLAIMS_DELETE_IN_PROGRESS:
-        if _delete_in_progress not in _exists_claim:
-            CLAIMS_DELETE_IN_PROGRESS.remove(_delete_in_progress)
+        _exists_claim = [_cl["name"] for _cl in res]
+        for _delete_in_progress in get_deleted_claims():
+            if _delete_in_progress not in _exists_claim:
+                app.logger.info(f"Removing claim from delete in progress list: {_delete_in_progress}")
+                remove_claim_from_deleted_claims(_delete_in_progress)
 
-    return res
+        return res
 
 
 def get_cluster_pools() -> List[Dict[str, str]]:
@@ -122,15 +127,12 @@ def claim_cluster(user: str, pool: str) -> Dict[str, str]:
 
 
 def claim_cluster_delete(claim_name: str) -> None:
-    if not claim_name:
-        return
-
     _claim = ClusterClaim(
         name=claim_name,
         namespace=HIVE_CLUSTER_NAMESPACE,
     )
     _claim.clean_up(wait=False)
-    CLAIMS_DELETE_IN_PROGRESS.append(claim_name)
+    add_claim_to_deleted_claims(claim_name)
 
 
 def get_all_user_claims_names(user: str) -> List[str]:
@@ -139,7 +141,7 @@ def get_all_user_claims_names(user: str) -> List[str]:
     for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
         if (
             user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")
-        ) and _claim.name not in CLAIMS_DELETE_IN_PROGRESS:
+        ) and _claim.name not in get_deleted_claims():
             _user_claims.append(_claim.name)
 
     app.logger.info(f"User {user} claims: {_user_claims}")
@@ -156,7 +158,7 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
             if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
                 futures.append(executor.submit(_claim.clean_up, False))
                 deleted_claims.append(_claim.name)
-                CLAIMS_DELETE_IN_PROGRESS.append(_claim.name)
+                add_claim_to_deleted_claims(_claim.name)
 
     for _ in as_completed(futures):
         # clean_up does not return

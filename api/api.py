@@ -3,7 +3,7 @@ from typing import Any, Tuple
 from flask import Response, request, send_file
 from flask import jsonify, session
 
-from claims_delete_in_progress import CLAIMS_DELETE_IN_PROGRESS
+from claims_delete_in_progress import get_deleted_claims
 from models import User
 from app import app
 from utils import (
@@ -114,8 +114,8 @@ def download_kubeconfig_endpoint(filename: str) -> Tuple[Response, int]:
 
 @app.route("/api/claims-delete-in-progress-endpoint", methods=["GET"])
 def claims_delete_in_progress_endpoint() -> Tuple[Response, int]:
-    app.logger.error(f"{CLAIMS_DELETE_IN_PROGRESS=}")
-    return jsonify(CLAIMS_DELETE_IN_PROGRESS), 200
+    _cliams_delete_in_progress_from_file = get_deleted_claims()
+    return jsonify(_cliams_delete_in_progress_from_file), 200
 
 
 def main() -> None:

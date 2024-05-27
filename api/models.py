@@ -16,13 +16,7 @@ class User(db.Model):  # type: ignore[name-defined]
     admin = db.Column(db.Boolean, default=False)
 
 
-class Claims(db.Model):  # type: ignore[name-defined]
-    __tablename__ = "claims"
+class DeletedClaim(db.Model):  # type: ignore[name-defined]
+    __tablename__ = "deleted_claims"
     id = db.Column(db.String(32), primary_key=True, unique=True, default=get_uuid)
     name = db.Column(db.String(345), unique=True)
-    namespace = db.Column(db.String(345))
-    cluster_pool_name = db.Column(db.String(345), nullable=False)
-    console_url = db.Column(db.String(345))
-    creds = db.Column(db.Text)
-    kubeconfig = db.Column(db.Text)
-    deleted = db.Column(db.Boolean, default=False)
