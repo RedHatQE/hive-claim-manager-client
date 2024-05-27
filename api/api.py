@@ -112,7 +112,7 @@ def download_kubeconfig_endpoint(filename: str) -> Tuple[Response, int]:
     return send_file(f"/tmp/{filename}", download_name=filename, as_attachment=True), 200  # type: ignore[call-arg]
 
 
-@app.route("/api/claims-delete-in-proress-endpoint", methods=["GET"])
+@app.route("/api/claims-delete-in-progress-endpoint", methods=["GET"])
 def claims_delete_in_progress_endpoint() -> Tuple[Response, int]:
     app.logger.info(CLAIMS_DELETE_IN_PROGRESS)
     if not CLAIMS_DELETE_IN_PROGRESS:

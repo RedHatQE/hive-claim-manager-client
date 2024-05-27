@@ -68,7 +68,7 @@ function Row(props) {
     consoleLog("fetching deleted claims");
     try {
       const res = await fetch(
-        process.env.REACT_APP_API_URL + "/claims-delete-in-proress-endpoint",
+        process.env.REACT_APP_API_URL + "/claims-delete-in-progress-endpoint",
       );
       const data = await res.json();
       console.log(data);
