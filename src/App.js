@@ -3,8 +3,8 @@ import ClusterPools from "./ClusterPools";
 import ClusterClaims from "./ClusterClaims";
 import DeleteAllClaims from "./DeleteAllClaims";
 import httpClient from "./httpClient";
-import Button from "@mui/material/Button";
 import isUserAuthenticated from "./UserAuthentication";
+import Logout from "./Logout";
 
 const user = await isUserAuthenticated();
 
@@ -26,16 +26,7 @@ class AppWrapper extends React.Component {
             <ClusterPools />
             <ClusterClaims />
             <DeleteAllClaims />
-            <br />
-            <Button
-              color="error"
-              variant="contained"
-              size="small"
-              onClick={this.logoutUser}
-            >
-              {" "}
-              Logout{" "}
-            </Button>
+            <Logout />
           </div>
         )}
       </div>

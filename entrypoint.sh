@@ -5,7 +5,7 @@ set -ep
 REDIS_DIR="/tmp/redis"
 
 if [[ ! -d $REDIS_DIR ]]; then
-  mkdir -p $REDIS_DIR
+	mkdir -p $REDIS_DIR
 fi
 
 redis-server redis.conf &
@@ -26,11 +26,12 @@ echo "API started"
 popd
 
 if [[ ! -f ".env" ]]; then
-  echo "REACT_APP_API_URL=$REACT_APP_API_URL" > .env
+	echo "REACT_APP_API_URL=$REACT_APP_API_URL" >.env
 fi
 
 if [[ -z $DEVELOPMENT ]]; then
 	serve -s build
 else
+	echo "REACT_APP_DEBUG=true" >>.env
 	./node_modules/.bin/env-cmd -f .env npm run start-server
 fi

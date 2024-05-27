@@ -7,12 +7,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
-import DeleteIcon from "@mui/icons-material/Delete";
+import Button from "@mui/joy/Button";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import DownloadIcon from "@mui/icons-material/Download";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
@@ -20,14 +18,25 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
+import eventBus from "./EventBus";
+import consoleLog from "./ConsoleLog";
 
 function Row(props) {
   const { row: claim } = props;
   const { user } = props;
   const [open, setOpen] = useState(false);
+  const [deleteClaimStatus, setDeleteClaimStatus] = useState("Delete");
+  const [deletedClaims, setDeletedClaims] = useState([]);
 
   const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
+      if (
+        deleteClaimStatus === "Deleting" ||
+        deletedClaims.includes(claim.name)
+      ) {
+        alert("Claim already marked for deletion");
+        return;
+      }
       if (
         window.confirm(
           "\n\nAre you sure you want to delete claim " + claim.name + "?",
@@ -40,6 +49,7 @@ function Row(props) {
             "&user=" +
             user.name,
         );
+        setDeleteClaimStatus("Deleting");
       }
     } else {
       alert("You can only delete your own claims");
@@ -53,6 +63,29 @@ function Row(props) {
       alert("You can only view your own claims");
     }
   };
+
+  const getDeletedClaimsFromStorage = () => {
+    const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
+    if (deletedClaimsFromStorage) {
+      const deletedClaimsFromStorageArr = deletedClaimsFromStorage.split(",");
+      return deletedClaimsFromStorageArr.map((deleteClaim) => deleteClaim);
+    }
+    return [];
+  };
+  const getDeletedClaimsEvent = async () => {
+    eventBus.on("deletedClaims", (_) => {
+      setDeletedClaims(getDeletedClaimsFromStorage());
+    });
+  };
+
+  const getDeletedClaims = async () => {
+    setDeletedClaims(getDeletedClaimsFromStorage());
+  };
+
+  useEffect(() => {
+    getDeletedClaimsEvent();
+    getDeletedClaims();
+  }, []);
 
   return (
     <React.Fragment>
@@ -79,12 +112,18 @@ function Row(props) {
 
         <TableCell align="center">
           <Button
-            color="error"
-            startIcon={<DeleteIcon />}
+            variant="plain"
+            loading={
+              deletedClaims
+                .map((deletedClaim) => deletedClaim)
+                .includes(claim.name) || deleteClaimStatus === "Deleting"
+                ? true
+                : false
+            }
+            color="danger"
             onClick={handleDeleteOnClick}
           >
-            {" "}
-            Delete{" "}
+            DELETE
           </Button>
         </TableCell>
       </TableRow>
@@ -109,13 +148,15 @@ function Row(props) {
                   {claim.info.map((info) => (
                     <TableRow key={info.name}>
                       <TableCell>
-                        <a
+                        <Button
+                          variant="plain"
+                          component="a"
                           href={info.console}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Console
-                        </a>
+                          CONSOLE
+                        </Button>
                       </TableCell>
                       <TableCell align="center">
                         <p>
@@ -125,10 +166,11 @@ function Row(props) {
                       </TableCell>
                       <TableCell align="center">
                         <Button
-                          endIcon={<DownloadIcon />}
+                          variant="plain"
+                          component="a"
                           href={process.env.REACT_APP_API_URL + info.kubeconfig}
                         >
-                          Kubeconfig
+                          KUBECONFIG
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -176,7 +218,8 @@ function ClusterClaims() {
       if (loading) {
         setLoading(true);
       }
-      console.log("fetching cluster claims");
+      consoleLog("fetching cluster claims");
+
       const res = await fetch(
         process.env.REACT_APP_API_URL + "/cluster-claims",
       );
@@ -193,7 +236,14 @@ function ClusterClaims() {
     }
   };
 
+  const processClaimDone = async () => {
+    eventBus.on("claimDone", (_) => {
+      getClusterClaims();
+    });
+  };
+
   useEffect(() => {
+    processClaimDone();
     getClusterClaims(true);
     getUser();
     const interval = setInterval(() => {

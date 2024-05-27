@@ -1,68 +1,77 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
-import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
+import Button from "@mui/joy/Button";
 
 import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
+import eventBus from "./EventBus";
 
 const user = await isUserAuthenticated();
 
 function DeleteAllClaims() {
-  const [loading, setLoading] = useState(false);
+  const [userText, setUserText] = useState(user.name);
+
+  const getUserText = async () => {
+    if (user.admin) {
+      setUserText("");
+    }
+  };
 
   const onClickHandler = async () => {
-    setLoading(true);
     const res = await fetch(
       process.env.REACT_APP_API_URL +
         "/all-user-claims-names?user=" +
         user.name,
     );
     const data = await res.json();
-    setLoading(false);
-    console.log(data);
     if (data.length === 0) {
-      alert("No claims found for user: " + user.name);
-    } else if (
+      alert("No claims found for user: " + userText);
+      return;
+    }
+    if (
       window.confirm(
         data.map((claim) => claim).join("\n") +
-          "\n\nAre you sure you want to delete all claims for user " +
-          user.name +
-          "?",
+          "\n\nAre you sure you want to delete the following claims ?",
       )
     ) {
       await httpClient.post(
         process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
       );
+
+      const dataMap = data.map((claim) => claim);
+
+      const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
+      const dataAndStorage = deletedClaimsFromStorage + "," + dataMap;
+
+      if (deletedClaimsFromStorage) {
+        sessionStorage.setItem("deletedClaims", dataAndStorage);
+      } else {
+        sessionStorage.setItem("deletedClaims", dataMap);
+      }
+      eventBus.dispatch("deletedClaims", {
+        message: dataMap,
+      });
     }
   };
 
+  useEffect(() => {
+    getUserText();
+  }, []);
+
   return (
     <div>
-      {loading ? (
-        <Box sx={{ display: "flex" }}>
-          <CircularProgress size={30} />
-        </Box>
-      ) : (
-        <Box sx={{ minWidth: 120 }}>
-          <FormControl fullWidth>
-            <Stack direction="row" spacing={2}>
-              <Button
-                color="error"
-                startIcon={<DeleteIcon />}
-                onClick={onClickHandler}
-              >
-                {" "}
-                Delete All {user.name} Claims{" "}
-              </Button>
-            </Stack>
-          </FormControl>
-        </Box>
-      )}
+      <Box sx={{ minWidth: 120 }}>
+        <FormControl fullWidth>
+          <Stack direction="row" spacing={2}>
+            <Button color="danger" variant="plain" onClick={onClickHandler}>
+              {"DELETE ALL " + userText.toUpperCase() + " CLAIMS"}
+            </Button>
+          </Stack>
+        </FormControl>
+      </Box>
     </div>
   );
 }
