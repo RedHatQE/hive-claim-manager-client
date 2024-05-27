@@ -11,6 +11,7 @@ from ocp_utilities.infra import base64
 import os
 
 import shortuuid
+from sqlalchemy.orm.query import Optional
 
 from claims_delete_in_progress import (
     add_claim_to_deleted_claims,
@@ -167,22 +168,22 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
     return {"deleted_claims": deleted_claims}
 
 
-def get_claimed_cluster_deployment(claim_name: str) -> ClusterDeployment | str:
+def get_claimed_cluster_deployment(claim_name: str) -> Optional[ClusterDeployment]:
     _claim: Any = ClusterClaim(client=ocp_client, name=claim_name, namespace=HIVE_CLUSTER_NAMESPACE)
 
     if not _claim.exists:
-        return "<p><b>Claim not found</b></p>"
+        return
 
     _instance: ResourceInstance = _claim.instance
     if not _instance.spec.namespace:
-        return "<p><b>ClusterDeployment not found for this claim</b></p>"
+        return
 
     return ClusterDeployment(client=ocp_client, name=_instance.spec.namespace, namespace=_instance.spec.namespace)
 
 
 def get_claimed_cluster_web_console(claim_name: str) -> Dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
-    if isinstance(_cluster_deployment, str):
+    if not _cluster_deployment:
         return {"console": ""}
 
     _console_url = _cluster_deployment.instance.status.webConsoleURL
@@ -191,7 +192,7 @@ def get_claimed_cluster_web_console(claim_name: str) -> Dict[str, str]:
 
 def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
-    if isinstance(_cluster_deployment, str):
+    if not _cluster_deployment:
         return {"creds": ""}
 
     _secret = Secret(
@@ -206,7 +207,7 @@ def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:
 
 def get_claimed_cluster_kubeconfig(claim_name: str) -> Dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
-    if isinstance(_cluster_deployment, str):
+    if not _cluster_deployment:
         return {"kubeconfig": ""}
 
     _secret = Secret(
