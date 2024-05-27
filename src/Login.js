@@ -9,6 +9,11 @@ const Login = () => {
   const [name, setUser] = useState("");
   const [password, setPassword] = useState("");
 
+  const onFormSubmit = (e) => {
+    e.preventDefault();
+    logInUser();
+  };
+
   const logInUser = async () => {
     try {
       await httpClient.post(process.env.REACT_APP_API_URL + "/login", {
@@ -65,12 +70,13 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <Button
+            type="submit"
             variant="outlined"
             style={{ fontWeight: "bold" }}
             endIcon={<SendIcon />}
             color="success"
             focused
-            onClick={() => logInUser()}
+            onClick={onFormSubmit}
           >
             {" "}
             Login{" "}
