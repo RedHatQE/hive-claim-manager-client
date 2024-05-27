@@ -66,19 +66,23 @@ function Row(props) {
 
   const getDeletedClaims = async () => {
     consoleLog("fetching deleted claims");
-
-    const res = await fetch(
-      process.env.REACT_APP_API_URL + "/claims-delete-in-proress-endpoint",
-    );
-    const data = await res.json();
-    setDeletedClaims(data);
+    try {
+      const res = await fetch(
+        process.env.REACT_APP_API_URL + "/claims-delete-in-proress-endpoint",
+      );
+      const data = await res.json();
+      console.log(data);
+      setDeletedClaims(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
     getDeletedClaims();
     const interval = setInterval(() => {
       getDeletedClaims();
-    }, 1 * 1000);
+    }, 5 * 1000);
     return () => clearInterval(interval);
   }, []);
 

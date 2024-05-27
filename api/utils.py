@@ -12,11 +12,11 @@ import os
 
 import shortuuid
 
+from claims_delete_in_progress import CLAIMS_DELETE_IN_PROGRESS
 from app import app, ocp_client
 
 
 HIVE_CLUSTER_NAMESPACE: str = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
-CLAIMS_DELETE_IN_PROGRESS: List[str] = []
 
 
 def get_all_claims() -> List[Dict[str, str]]:

@@ -16,7 +16,7 @@ pushd api/
 poetry run python manage_users.py create_db
 
 if [[ -z $DEVELOPMENT ]]; then
-	poetry run uwsgi --post-buffering --master --enable-threads --http 0.0.0.0:5000 --wsgi-file api.py --callable app --processes 4 --threads 2 &
+	poetry run uwsgi --disable-logging --post-buffering --master --enable-threads --http 0.0.0.0:5000 --wsgi-file api.py --callable app --processes 4 --threads 2 &
 else
 	poetry run python api.py &
 fi
