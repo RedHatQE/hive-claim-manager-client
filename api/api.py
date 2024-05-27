@@ -6,6 +6,7 @@ from flask import jsonify, session
 from models import User
 from app import app
 from utils import (
+    CLAIMS_DELETE_IN_PROGRESS,
     claim_cluster,
     claim_cluster_delete,
     delete_all_claims,
@@ -109,6 +110,11 @@ def delete_all_claims_endpoint() -> Tuple[Response, int]:
 @app.route("/api/kubeconfig/<filename>", methods=["GET"])
 def download_kubeconfig_endpoint(filename: str) -> Tuple[Response, int]:
     return send_file(f"/tmp/{filename}", download_name=filename, as_attachment=True), 200  # type: ignore[call-arg]
+
+
+@app.route("/api/claims-delete-in-proress-endpoint", methods=["GET"])
+def claims_delete_in_progress_endpoint() -> Tuple[Response, int]:
+    return jsonify(CLAIMS_DELETE_IN_PROGRESS), 200
 
 
 def main() -> None:
