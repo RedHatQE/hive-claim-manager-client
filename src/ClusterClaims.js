@@ -24,17 +24,13 @@ import consoleLog from "./ConsoleLog";
 function Row(props) {
   const { row: claim } = props;
   const { user } = props;
+  const { deleted } = props;
   const [open, setOpen] = useState(false);
   const [deleteClaimStatus, setDeleteClaimStatus] = useState("Delete");
-  const [deletedClaims, setDeletedClaims] = useState([]);
 
   const handleDeleteOnClick = () => {
     if (claim.name.includes(user.name) || user.admin) {
-      if (
-        deleteClaimStatus === "Deleting" ||
-        deletedClaims.includes(claim.name)
-      ) {
-        alert("Claim already marked for deletion");
+      if (deleteClaimStatus === "Deleting" || deleted) {
         return;
       }
       if (
@@ -64,28 +60,6 @@ function Row(props) {
     }
   };
 
-  const getDeletedClaims = async () => {
-    consoleLog("fetching deleted claims");
-    try {
-      const res = await fetch(
-        process.env.REACT_APP_API_URL + "/claims-delete-in-progress-endpoint",
-      );
-      const data = await res.json();
-      console.log(data);
-      setDeletedClaims(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    getDeletedClaims();
-    const interval = setInterval(() => {
-      getDeletedClaims();
-    }, 5 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <React.Fragment>
       <TableRow
@@ -112,13 +86,7 @@ function Row(props) {
         <TableCell align="center">
           <Button
             variant="plain"
-            loading={
-              deletedClaims
-                .map((deletedClaim) => deletedClaim)
-                .includes(claim.name) || deleteClaimStatus === "Deleting"
-                ? true
-                : false
-            }
+            loading={deleted || deleteClaimStatus === "Deleting"}
             color="danger"
             onClick={handleDeleteOnClick}
           >
@@ -189,6 +157,7 @@ Row.propTypes = {
     name: PropTypes.string.isRequired,
   }),
   row: PropTypes.shape({
+    deleted: PropTypes.bool,
     name: PropTypes.string.isRequired,
     pool: PropTypes.string.isRequired,
     namespace: PropTypes.string.isRequired,
@@ -206,6 +175,7 @@ function ClusterClaims() {
   const [user, setUser] = useState(null);
   const [clusterClaims, setClusterClaims] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deletedClaims, setDeletedClaims] = useState([]);
 
   const getUser = async () => {
     const user = await isUserAuthenticated();
@@ -241,14 +211,39 @@ function ClusterClaims() {
     });
   };
 
+  const processDeletedAllClaimsDone = async () => {
+    eventBus.on("deleteAllDone", (_) => {
+      getDeletedClaims("From deleteAll");
+    });
+  };
+
+  const getDeletedClaims = async (f) => {
+    consoleLog("fetching deleted claims from");
+    try {
+      const res = await fetch(
+        process.env.REACT_APP_API_URL + "/claims-delete-in-progress-endpoint",
+      );
+      const data = await res.json();
+      console.log(data.join(",") + " From " + f);
+      setDeletedClaims(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
+    getDeletedClaims("useEffect");
     processClaimDone();
+    processDeletedAllClaimsDone();
     getClusterClaims(true);
     getUser();
-    const interval = setInterval(() => {
+    const clusterClaimsInterval = setInterval(() => {
       getClusterClaims();
     }, 30 * 1000);
-    return () => clearInterval(interval);
+    const deletedClaimsInterval = setInterval(() => {
+      getDeletedClaims("Interval");
+    }, 1 * 1000);
+    return () => clearInterval(clusterClaimsInterval, deletedClaimsInterval);
   }, []);
 
   return (
@@ -275,7 +270,12 @@ function ClusterClaims() {
                   .map((claim) => claim)
                   .sort((a, b) => (a.name > b.name ? 1 : -1))
                   .map((claim) => (
-                    <Row key={claim.name} row={claim} user={user} />
+                    <Row
+                      key={claim.name}
+                      row={claim}
+                      user={user}
+                      deleted={deletedClaims.includes(claim.name)}
+                    />
                   ))}
               </TableBody>
             </Table>

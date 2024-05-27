@@ -12,7 +12,7 @@ from models import db
 
 app = Flask("hive-claims-manager")
 app.logger.removeHandler(default_handler)
-app.logger.addHandler(get_logger(app.logger.name).handlers[0])
+app.logger.addHandler(get_logger(app.logger.name, duplicate_filter=False).handlers[0])
 app.config.from_object(ApplicationConfig)
 bcrypt = Bcrypt(app)
 CORS(app, supports_credentials=True)

@@ -7,6 +7,7 @@ import Button from "@mui/joy/Button";
 import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
+import eventBus from "./EventBus";
 
 const user = await isUserAuthenticated();
 
@@ -30,15 +31,18 @@ function DeleteAllClaims() {
       alert("No claims found for user: " + userText);
       return;
     }
+    const dataMap = data.map((claim) => claim).join("\n");
     if (
       window.confirm(
-        data.map((claim) => claim).join("\n") +
-          "\n\nAre you sure you want to delete the following claims ?",
+        dataMap + "\n\nAre you sure you want to delete the following claims ?",
       )
     ) {
       await httpClient.post(
         process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
       );
+      eventBus.dispatch("deleteAllDone", {
+        message: dataMap,
+      });
     }
   };
 

@@ -114,9 +114,7 @@ def download_kubeconfig_endpoint(filename: str) -> Tuple[Response, int]:
 
 @app.route("/api/claims-delete-in-progress-endpoint", methods=["GET"])
 def claims_delete_in_progress_endpoint() -> Tuple[Response, int]:
-    app.logger.info(CLAIMS_DELETE_IN_PROGRESS)
-    if not CLAIMS_DELETE_IN_PROGRESS:
-        return jsonify([]), 404
+    app.logger.error(f"{CLAIMS_DELETE_IN_PROGRESS=}")
     return jsonify(CLAIMS_DELETE_IN_PROGRESS), 200
 
 
