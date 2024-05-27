@@ -169,6 +169,10 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
 
 def get_claimed_cluster_deployment(claim_name: str) -> ClusterDeployment | str:
     _claim: Any = ClusterClaim(client=ocp_client, name=claim_name, namespace=HIVE_CLUSTER_NAMESPACE)
+
+    if not _claim.exists():
+        return "<p><b>Claim not found</b></p>"
+
     _instance: ResourceInstance = _claim.instance
     if not _instance.spec.namespace:
         return "<p><b>ClusterDeployment not found for this claim</b></p>"
