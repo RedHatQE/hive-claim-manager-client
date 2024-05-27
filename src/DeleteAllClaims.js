@@ -7,7 +7,6 @@ import Button from "@mui/joy/Button";
 import FormControl from "@mui/material/FormControl";
 import httpClient from "./httpClient";
 import isUserAuthenticated from "./UserAuthentication";
-import eventBus from "./EventBus";
 
 const user = await isUserAuthenticated();
 
@@ -40,20 +39,6 @@ function DeleteAllClaims() {
       await httpClient.post(
         process.env.REACT_APP_API_URL + "/delete-all-claims?user=" + user.name,
       );
-
-      const dataMap = data.map((claim) => claim);
-
-      const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
-      const dataAndStorage = deletedClaimsFromStorage + "," + dataMap;
-
-      if (deletedClaimsFromStorage) {
-        sessionStorage.setItem("deletedClaims", dataAndStorage);
-      } else {
-        sessionStorage.setItem("deletedClaims", dataMap);
-      }
-      eventBus.dispatch("deletedClaims", {
-        message: dataMap,
-      });
     }
   };
 

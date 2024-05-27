@@ -64,27 +64,23 @@ function Row(props) {
     }
   };
 
-  const getDeletedClaimsFromStorage = () => {
-    const deletedClaimsFromStorage = sessionStorage.getItem("deletedClaims");
-    if (deletedClaimsFromStorage) {
-      const deletedClaimsFromStorageArr = deletedClaimsFromStorage.split(",");
-      return deletedClaimsFromStorageArr.map((deleteClaim) => deleteClaim);
-    }
-    return [];
-  };
-  const getDeletedClaimsEvent = async () => {
-    eventBus.on("deletedClaims", (_) => {
-      setDeletedClaims(getDeletedClaimsFromStorage());
-    });
-  };
-
   const getDeletedClaims = async () => {
-    setDeletedClaims(getDeletedClaimsFromStorage());
+    consoleLog("fetching deleted claims");
+
+    const res = await fetch(
+      process.env.REACT_APP_API_URL + "/claims-delete-in-proress-endpoint",
+    );
+    const data = await res.json();
+    setDeletedClaims(data);
   };
 
   useEffect(() => {
-    getDeletedClaimsEvent();
+    // getDeletedClaimsEvent();
     getDeletedClaims();
+    const interval = setInterval(() => {
+      getDeletedClaims();
+    }, 1 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

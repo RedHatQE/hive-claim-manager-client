@@ -15,11 +15,15 @@ import shortuuid
 from app import app, ocp_client
 
 
-HIVE_CLUSTER_NAMESPACE = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
+HIVE_CLUSTER_NAMESPACE: str = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
+CLAIMS_DELETE_IN_PROGRESS: List[str] = []
 
 
 def get_all_claims() -> List[Dict[str, str]]:
     def _claims(_claim: NamespacedResource) -> List[Dict[str, str]]:
+        if not _claim.exists:
+            return []
+
         _res = []
         _instance = _claim.instance
         _namespace = _instance.spec.namespace
@@ -31,7 +35,7 @@ def get_all_claims() -> List[Dict[str, str]]:
             "info": [],
         }
         if _namespace:
-            _info_dict = {"name": _instance.metadata.name}
+            _info_dict = {"name": _name}
             with ThreadPoolExecutor() as _executor:
                 _futures = []
                 for _func in (
@@ -64,7 +68,17 @@ def get_all_claims() -> List[Dict[str, str]]:
             futures.append(executor.submit(_claims, claim))
 
         for future in as_completed(futures):
-            res.extend(future.result())
+            if future.result():
+                res.extend(future.result())
+
+    _exists_claim = [_cl["name"] for _cl in res]
+    for _delete_in_progress in CLAIMS_DELETE_IN_PROGRESS:
+        if _delete_in_progress not in _exists_claim:
+            CLAIMS_DELETE_IN_PROGRESS.remove(_delete_in_progress)
+
+    # global CLAIMS_DELETE_IN_PROGRESS
+    # CLAIMS_DELETE_IN_PROGRESS = list(set(CLAIMS_DELETE_IN_PROGRESS).intersection(set(_existing_claims)))
+    # app.logger.info(f"Claims in progress: {CLAIMS_DELETE_IN_PROGRESS}")
     return res
 
 
@@ -119,13 +133,16 @@ def claim_cluster_delete(claim_name: str) -> None:
         namespace=HIVE_CLUSTER_NAMESPACE,
     )
     _claim.clean_up(wait=False)
+    CLAIMS_DELETE_IN_PROGRESS.append(claim_name)
 
 
 def get_all_user_claims_names(user: str) -> List[str]:
     _user_claims: List[str] = []
     _claim: Any
     for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
-        if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
+        if (
+            user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")
+        ) and _claim.name not in CLAIMS_DELETE_IN_PROGRESS:
             _user_claims.append(_claim.name)
 
     app.logger.info(f"User {user} claims: {_user_claims}")
@@ -142,6 +159,7 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
             if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
                 futures.append(executor.submit(_claim.clean_up, False))
                 deleted_claims.append(_claim.name)
+                CLAIMS_DELETE_IN_PROGRESS.append(_claim.name)
 
     for _ in as_completed(futures):
         # clean_up does not return
