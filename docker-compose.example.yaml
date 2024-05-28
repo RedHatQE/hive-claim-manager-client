@@ -27,7 +27,7 @@ services:
       - <path to kubeconfig>:/root/.kube/config
       - <path to aws credentials>:/root/.aws/credentials
       - ../development/users.yaml:/users.yaml
-      - <path to DB file>:/db.sqlite # optional; defaults to /tmp/db.sqlite
+      - <path to DB file>:/db.sqlite # optional. Local file must exist; defaults to /tmp/db.sqlite
     environment:
       - HIVE_CLAIM_FLASK_APP_USERS_FILE=/users.yaml
       - HIVE_CLAIM_FLASK_APP_SECRET_KEY=localdevelopment
