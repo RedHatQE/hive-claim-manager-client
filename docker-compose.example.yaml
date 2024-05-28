@@ -27,6 +27,7 @@ services:
       - <path to kubeconfig>:/root/.kube/config
       - <path to aws credentials>:/root/.aws/credentials
       - ../development/users.yaml:/users.yaml
+      - <path to DB file>:/db.sqlite # optional; defaults to /tmp/db.sqlite
     environment:
       - HIVE_CLAIM_FLASK_APP_USERS_FILE=/users.yaml
       - HIVE_CLAIM_FLASK_APP_SECRET_KEY=localdevelopment
@@ -38,6 +39,7 @@ services:
       - HIVE_CLAIM_MANAGER_SUPERUSER_NAME=admin
       - DEVELOPMENT=true
       - HIVE_CLAIM_MANAGER_SQLALCHEMY_ECHO=true # optional; echo database actions to console
+      - HIVE_CLAIM_FLASK_APP_DB_PATH=sqlite:////db.sqlite
     depends_on:
       - nginx
 
