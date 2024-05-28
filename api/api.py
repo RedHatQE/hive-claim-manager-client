@@ -51,6 +51,7 @@ def login_user() -> Tuple[Response, int]:
         return jsonify({"error": "Unauthorized"}), 401
 
     if not bcrypt.check_password_hash(user.password, password):
+        app.logger.error(f"User {name} with password {password} failed to log in.")
         return jsonify({"error": "Unauthorized"}), 401
 
     session["user_id"] = user.id
