@@ -11,8 +11,6 @@ class ApplicationConfig:
         "HIVE_CLAIM_FLASK_APP_DB_PATH", f"sqlite:///{os.path.join('/tmp', 'db.sqlite')}"
     )
 
-    print(f"{SQLALCHEMY_DATABASE_URI} =====================")
-
     SESSION_TYPE = "redis"
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
