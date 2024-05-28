@@ -13,7 +13,7 @@ while ! redis-cli ping; do sleep 1; done
 echo "Redis started"
 
 pushd api/
-poetry run python manage_users.py create_db
+poetry run python init_db.py create_db
 
 if [[ -z $DEVELOPMENT ]]; then
 	poetry run uwsgi --disable-logging --post-buffering --master --enable-threads --http 0.0.0.0:5000 --wsgi-file api.py --callable app --processes 4 --threads 2 &
