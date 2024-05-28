@@ -26,7 +26,7 @@ def create_users() -> None:
 
 @cli.command("create_db")
 def create_db() -> None:
-    db.drop_all()
+    User.__table__.drop(bind=db.engine, checkfirst=True)
     db.create_all()
     create_users()
     db.session.commit()

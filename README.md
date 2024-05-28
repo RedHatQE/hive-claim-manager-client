@@ -32,3 +32,11 @@ The following users configured:
 - User: `user` Password: `user` <!--pragma: allowlist secret-->
 
 Node server and Flask server will be automatically reloaded on file changes.
+
+## Database
+
+By default, the application uses sqlite database, saved under `/tmp/db.sqlite`.
+To change the path or location, set `HIVE_CLAIM_FLASK_APP_DB_PATH`
+
+For external storage, set to `sqlite://<username>:<password>@<host>:<port>/<database>`
+For different path, set to `sqlite:////<dir>/<filename>`
