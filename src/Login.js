@@ -68,6 +68,11 @@ const Login = () => {
             focused
             autoComplete="current-password"
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onFormSubmit(e);
+              }
+            }}
           />
           <Button
             type="submit"
