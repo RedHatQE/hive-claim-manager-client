@@ -12,8 +12,8 @@ cli = FlaskGroup(app)
 def create_db() -> None:
     UsersDB().delete_table()
     db.create_all()
-    UsersDB().create_users()
     db.session.commit()
+    UsersDB().create_users()
 
 
 if __name__ == "__main__":

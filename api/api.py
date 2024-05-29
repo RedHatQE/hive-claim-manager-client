@@ -34,7 +34,7 @@ def get_current_user() -> Tuple[Response, int]:
     user = UsersDB().get_user(name=user_id)
 
     if not user:
-        app.logger.info("no USER")
+        app.logger.error("No USER")
         return jsonify(_error), 401
 
     return jsonify({"id": user.id, "name": user.name, "admin": user.admin, "error": ""}), 200

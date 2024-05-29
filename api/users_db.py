@@ -18,17 +18,24 @@ class UsersDB:
             return user[0] if user else None
 
     def create_users(self) -> None:
-        for user_data in parse_config(os.environ["HIVE_CLAIM_FLASK_APP_USERS_FILE"])["users"]:
-            username, password = user_data.split(":")
-            app.logger.info(f"Creating user {username}")
-            hashed_password = bcrypt.generate_password_hash(password)
+        with db.session() as _session:
+            for user_data in parse_config(os.environ["HIVE_CLAIM_FLASK_APP_USERS_FILE"])["users"]:
+                username, password = user_data.split(":")
+                app.logger.info(f"Creating user {username}")
+                hashed_password = bcrypt.generate_password_hash(password)
 
-            insert(self.TABLE).values(
-                name=username,
-                password=hashed_password,
-                admin=os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME") == username,
-            )
-            db.session.commit()
+                _session.execute(
+                    insert(self.TABLE).values(
+                        name=username,
+                        password=hashed_password,
+                        admin=os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME") == username,
+                    )
+                )
+
+                _session.commit()
 
     def delete_table(self) -> None:
-        self.TABLE.__table__.drop(bind=db.engine, checkfirst=True)
+        app.logger.info(f"Deleting {self.TABLE.__tablename__} table")
+        with db.session() as _session:
+            self.TABLE.__table__.drop(bind=db.engine, checkfirst=True)
+            _session.commit()
