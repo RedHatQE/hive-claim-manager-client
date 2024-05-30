@@ -14,8 +14,7 @@ class UsersDB:
 
     def get_user(self, name: str) -> Optional[User]:
         with db.session() as _session:
-            user = _session.scalars(select(self.TABLE).where(self.TABLE.name == name)).first()
-            return user[0] if user else None
+            return _session.scalars(select(self.TABLE).where(self.TABLE.name == name)).first()
 
     def create_users(self) -> None:
         with db.session() as _session:
