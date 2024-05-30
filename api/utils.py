@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from kubernetes.dynamic.resource import ResourceInstance
 from ocp_resources.cluster_claim import ClusterClaim, NamespacedResource
@@ -11,13 +11,8 @@ from ocp_utilities.infra import base64
 import os
 
 import shortuuid
-from sqlalchemy.orm.query import Optional
 
-from claims_delete_in_progress import (
-    add_claim_to_deleted_claims,
-    get_deleted_claims,
-    remove_claim_from_deleted_claims,
-)
+from claims_db import ClaimsDB
 from app import app, ocp_client
 
 
@@ -77,10 +72,10 @@ def get_all_claims() -> List[Dict[str, str]]:
                 res.extend(future.result())
 
         _exists_claim = [_cl["name"] for _cl in res]
-        for _delete_in_progress in get_deleted_claims():
+        for _delete_in_progress in ClaimsDB().get_deleted_claims():
             if _delete_in_progress not in _exists_claim:
                 app.logger.info(f"Removing claim from delete in progress list: {_delete_in_progress}")
-                remove_claim_from_deleted_claims(_delete_in_progress)
+                ClaimsDB().remove_claim_from_deleted_claims(_delete_in_progress)
 
         return res
 
@@ -133,7 +128,7 @@ def claim_cluster_delete(claim_name: str) -> None:
         namespace=HIVE_CLUSTER_NAMESPACE,
     )
     _claim.clean_up(wait=False)
-    add_claim_to_deleted_claims(claim_name)
+    ClaimsDB().add_claim_to_deleted_claims(claim_name)
 
 
 def get_all_user_claims_names(user: str) -> List[str]:
@@ -142,7 +137,7 @@ def get_all_user_claims_names(user: str) -> List[str]:
     for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
         if (
             user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME")
-        ) and _claim.name not in get_deleted_claims():
+        ) and _claim.name not in ClaimsDB().get_deleted_claims():
             _user_claims.append(_claim.name)
 
     app.logger.info(f"User {user} claims: {_user_claims}")
@@ -159,7 +154,7 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
             if user in _claim.name or user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
                 futures.append(executor.submit(_claim.clean_up, False))
                 deleted_claims.append(_claim.name)
-                add_claim_to_deleted_claims(_claim.name)
+                ClaimsDB().add_claim_to_deleted_claims(_claim.name)
 
     for _ in as_completed(futures):
         # clean_up does not return
@@ -172,11 +167,11 @@ def get_claimed_cluster_deployment(claim_name: str) -> Optional[ClusterDeploymen
     _claim: Any = ClusterClaim(client=ocp_client, name=claim_name, namespace=HIVE_CLUSTER_NAMESPACE)
 
     if not _claim.exists:
-        return
+        return None
 
     _instance: ResourceInstance = _claim.instance
     if not _instance.spec.namespace:
-        return
+        return None
 
     return ClusterDeployment(client=ocp_client, name=_instance.spec.namespace, namespace=_instance.spec.namespace)
 

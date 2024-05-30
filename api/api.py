@@ -1,10 +1,10 @@
 import os
-from typing import Any, Tuple
+from typing import Tuple
 from flask import Response, request, send_file
 from flask import jsonify, session
 
-from claims_delete_in_progress import get_deleted_claims
-from models import User
+from users_db import UsersDB
+from claims_db import ClaimsDB
 from app import app
 from utils import (
     claim_cluster,
@@ -31,10 +31,10 @@ def get_current_user() -> Tuple[Response, int]:
         app.logger.info("no USER ID")
         return jsonify(_error), 401
 
-    user: Any = User.query.filter_by(id=user_id).first()
+    user = UsersDB().get_user_by_id(user_id=user_id)
 
     if not user:
-        app.logger.info("no USER")
+        app.logger.error("No USER")
         return jsonify(_error), 401
 
     return jsonify({"id": user.id, "name": user.name, "admin": user.admin, "error": ""}), 200
@@ -45,7 +45,7 @@ def login_user() -> Tuple[Response, int]:
     name = request.json["name"]
     password = request.json["password"]
 
-    user: Any = User.query.filter_by(name=name).first()
+    user = UsersDB().get_user_by_name(name=name)
 
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
@@ -115,7 +115,7 @@ def download_kubeconfig_endpoint(filename: str) -> Tuple[Response, int]:
 
 @app.route("/api/claims-delete-in-progress-endpoint", methods=["GET"])
 def claims_delete_in_progress_endpoint() -> Tuple[Response, int]:
-    _cliams_delete_in_progress_from_file = get_deleted_claims()
+    _cliams_delete_in_progress_from_file = ClaimsDB().get_deleted_claims()
     return jsonify(_cliams_delete_in_progress_from_file), 200
 
 
