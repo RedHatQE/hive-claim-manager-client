@@ -12,9 +12,13 @@ from models import db, User
 class UsersDB:
     TABLE = User
 
-    def get_user(self, name: str) -> Optional[User]:
+    def get_user_by_name(self, name: str) -> Optional[User]:
         with db.session() as _session:
             return _session.scalars(select(self.TABLE).where(self.TABLE.name == name)).first()
+
+    def get_user_by_id(self, user_id: str) -> Optional[User]:
+        with db.session() as _session:
+            return _session.scalars(select(self.TABLE).where(self.TABLE.id == user_id)).first()
 
     def create_users(self) -> None:
         with db.session() as _session:

@@ -31,7 +31,7 @@ def get_current_user() -> Tuple[Response, int]:
         app.logger.info("no USER ID")
         return jsonify(_error), 401
 
-    user = UsersDB().get_user(name=user_id)
+    user = UsersDB().get_user_by_id(user_id=user_id)
 
     if not user:
         app.logger.error("No USER")
@@ -45,7 +45,7 @@ def login_user() -> Tuple[Response, int]:
     name = request.json["name"]
     password = request.json["password"]
 
-    user = UsersDB().get_user(name=name)
+    user = UsersDB().get_user_by_name(name=name)
 
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
