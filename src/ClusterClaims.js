@@ -82,6 +82,7 @@ function Row(props) {
         </TableCell>
         <TableCell align="center">{claim.pool}</TableCell>
         <TableCell align="center">{claim.namespace}</TableCell>
+        <TableCell align="center">{claim.created_at}</TableCell>
 
         <TableCell align="center">
           <Button
@@ -103,7 +104,7 @@ function Row(props) {
                 gutterBottom
                 component="div"
               ></Typography>
-              <Table size="small" aria-label="purchases">
+              <Table size="small" aria-label="claimInfo">
                 <TableHead>
                   <TableRow>
                     <TableCell align="center"></TableCell>
@@ -273,6 +274,8 @@ function ClusterClaims() {
                   <TableCell>Name</TableCell>
                   <TableCell align="center">Pool</TableCell>
                   <TableCell align="center">Namespace</TableCell>
+                  <TableCell align="center">Created At (UTC)</TableCell>
+                  <TableCell align="center"></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

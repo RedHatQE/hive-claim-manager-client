@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from kubernetes.dynamic.resource import ResourceInstance
@@ -25,11 +26,17 @@ def get_all_claims() -> List[Dict[str, str]]:
             return []
 
         _res = []
+
         _instance = _claim.instance
         _namespace = _instance.spec.namespace
         _name = _instance.metadata.name
+        _created_at = datetime.strptime(_instance.metadata.creationTimestamp, "%Y-%m-%dT%H:%M:%SZ")
         _cluster_info = {
             "name": _name,
+            "created_at": (
+                f"{_created_at.strftime('%H')}:{_created_at.strftime('%M')} "
+                f"{_created_at.strftime('%d')}-{_created_at.strftime('%m')}-{_created_at.year}"
+            ),
             "namespace": _namespace or "Not Ready",
             "pool": _instance.spec.clusterPoolName,
             "info": [],
@@ -175,7 +182,11 @@ def get_claimed_cluster_deployment(claim_name: str) -> Optional[ClusterDeploymen
     if not _instance.spec.namespace:
         return None
 
-    return ClusterDeployment(client=ocp_client, name=_instance.spec.namespace, namespace=_instance.spec.namespace)
+    return ClusterDeployment(
+        client=ocp_client,
+        name=_instance.spec.namespace,
+        namespace=_instance.spec.namespace,
+    )
 
 
 def get_claimed_cluster_web_console(claim_name: str) -> Dict[str, str]:

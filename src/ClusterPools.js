@@ -90,7 +90,7 @@ function ClusterPools() {
               <Table
                 sx={{ minWidth: 350 }}
                 size="small"
-                aria-label="simple table"
+                aria-label="cluster pools"
               >
                 <TableHead>
                   <TableRow>
@@ -98,6 +98,7 @@ function ClusterPools() {
                     <TableCell align="center">Size</TableCell>
                     <TableCell align="center">Claimed</TableCell>
                     <TableCell align="center">Available</TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
