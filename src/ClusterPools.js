@@ -98,6 +98,7 @@ function ClusterPools() {
                     <TableCell align="center">Size</TableCell>
                     <TableCell align="center">Claimed</TableCell>
                     <TableCell align="center">Available</TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
