@@ -42,6 +42,7 @@ def get_all_claims() -> List[Dict[str, str]]:
                     get_claimed_cluster_web_console,
                     get_claimed_cluster_kubeconfig,
                     get_claimed_cluster_creds,
+                    get_claimed_cluster_login_command,
                 ):
                     _futures.append(_executor.submit(_func, _name))
 
@@ -53,6 +54,7 @@ def get_all_claims() -> List[Dict[str, str]]:
                 "console": "Not Ready",
                 "kubeconfig": "Not Ready",
                 "creds": "Not Ready",
+                "login_cmd": "Not Ready",
                 "name": _name,
             }
 
@@ -185,6 +187,24 @@ def get_claimed_cluster_web_console(claim_name: str) -> Dict[str, str]:
     return {"console": _console_url}
 
 
+def get_claimed_cluster_login_command(claim_name: str) -> Dict[str, str]:
+    _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
+    if not _cluster_deployment:
+        return {"login-cmd": ""}
+
+    login_creds = get_claimed_cluster_creds(claim_name=claim_name)
+    if not login_creds["creds"]:
+        return {"login-cmd": ""}
+
+    username, password = login_creds["creds"].split("#")
+
+    return {
+        "login_cmd": f"oc login --server {_cluster_deployment.instance.status.apiURL} "
+        f"-u {username} "
+        f"-p {password}"
+    }
+
+
 def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
     if not _cluster_deployment:
@@ -196,7 +216,7 @@ def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:
         client=ocp_client,
     )
     return {
-        "creds": f"Username {base64.b64decode(_secret.instance.data.username).decode()}:Password {base64.b64decode(_secret.instance.data.password).decode()}"
+        "creds": f"{base64.b64decode(_secret.instance.data.username).decode()}#{base64.b64decode(_secret.instance.data.password).decode()}"
     }
 
 

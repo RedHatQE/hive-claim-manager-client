@@ -118,6 +118,7 @@ function Row(props) {
                         <Button
                           variant="plain"
                           component="a"
+                          disabled={info.login_cmd === "Not Ready"}
                           href={info.console}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -127,14 +128,25 @@ function Row(props) {
                       </TableCell>
                       <TableCell align="center">
                         <p>
-                          {info.creds.split(":")[0]} <br />
-                          {info.creds.split(":")[1]}
+                          {info.creds.split("#")[0] +
+                            " / " +
+                            info.creds.split("#")[1]}
                         </p>
+                        <Button
+                          variant="plain"
+                          disabled={info.login_cmd === "Not Ready"}
+                          onClick={() => {
+                            navigator.clipboard.writeText(info.login_cmd);
+                          }}
+                        >
+                          COPY LOGIN COMMAND
+                        </Button>
                       </TableCell>
                       <TableCell align="center">
                         <Button
                           variant="plain"
                           component="a"
+                          disabled={info.login_cmd === "Not Ready"}
                           href={process.env.REACT_APP_API_URL + info.kubeconfig}
                         >
                           KUBECONFIG

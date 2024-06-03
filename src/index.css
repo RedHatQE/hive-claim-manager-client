@@ -1,21 +1,15 @@
+:where(body) {
+  --background-color: #fff;
+  --text-color: #222;
+}
 body {
-  background-color: #dadada;
-  color: #1f2023;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
-@media (prefers-color-scheme: light) {
-  body {
-    background-color: #1f2023;
-    color: #dadada;
+@media screen and (prefers-color-scheme: dark) {
+  :where(body) {
+    --background-color: hsl(228, 5%, 15%);
+    --text-color: hsl(228, 5%, 80%);
   }
-}
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
 }
